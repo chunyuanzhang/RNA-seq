@@ -7,7 +7,9 @@ import os
 
 # === 元信息 =========================================
 infotable = "metafile"
-
+untreated = "mKO"
+lfc = 1
+pval = 0.05
 # infotable文件内容示意，为了代码重复使用方便，infotable不要列
 # 第一列是样本名，第二列是组名
 # White_1W_F1.sra,White
@@ -31,7 +33,7 @@ ref_transscripts = "/home/zhangchunyuan/zhangchunyuan/reference/bGalGal1_mat_bro
 # === 外部参数处理 ===================================
 
 if os.path.exists(infotable):
-    metainfo = pd.read_csv(infotable, sep = ",", dtype=str, index_col = False, header=None)
+    metainfo = pd.read_csv(infotable, sep = ",", dtype=str, index_col = False, header=None, skiprows=1)
     metainfo.dropna(how='all', inplace=True) # 删除可能存在的空行
     metainfo.columns = [f'V{i+1}' for i in range(len(metainfo.columns))]
     metainfo = metainfo[ ~np.array([v.startswith("#") for v in metainfo.V1.to_list()])]  # 删除被#注释掉的行
@@ -59,7 +61,7 @@ files.append(expand("result/STAR/{sample}/{sample}_Aligned.sorted.flagstat", sam
 files.append(expand("result/STAR/{sample}/{sample}-rnaseq-qualimap-report/qualimapReport.html", sample = samples))
 files.append(expand("result/STAR/{sample}/{sample}-bamqc-qualimap-report/qualimapReport.html", sample = samples))
 files.append(expand("result/STAR/{sample}/{sample}.salmon_quant/quant.sf", sample = samples))
-files.append("samples.txt")
+files.append("PCA.pdf")
 
 
 
@@ -287,16 +289,26 @@ rule salmon_quant:
         salmon quant -t {ref_transscripts} --libType A -a {input.bam} -o {params.ourdir} --threads {threads}
         """
 
-rule create_salmon_sample_file:
+# rule create_salmon_sample_file:
+#     input:
+#         count = expand("result/STAR/{sample}/{sample}.salmon_quant/quant.sf", sample = samples)
+#     output:
+#         file = "samples.txt"
+#     run:
+#         with open(output.file, "w") as f:
+#             for s in samples:
+#                 f.write(s + "\t" + "result/STAR/" + s + "/" + s + ".salmon_quant/quant.sf" + "\t" + metainfo_dict[s] + "\n")
+
+
+rule DEseq2:
     input:
         count = expand("result/STAR/{sample}/{sample}.salmon_quant/quant.sf", sample = samples)
     output:
-        file = "samples.txt"
+        PCA = "PCA.pdf"
     run:
-        with open(output.file, "w") as f:
-            for s in samples:
-                f.write(s + "\t" + "result/STAR/" + s + "/" + s + ".salmon_quant/quant.sf" + "\t" + metainfo_dict[s] + "\n")
-
-
+        mappedfiles = ','.join(input.count)
+        cmd = (f"~/tools/DEseq2/bin/Rscript RNA-seq.R --metafile {infotable} --lfc {lfc} --pval {pval} --gtf {ref_gtf} --untreated {untreated} --mappedfiles {mappedfiles}")
+        print(cmd)
+        os.system(cmd)
 
 

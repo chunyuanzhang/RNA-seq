@@ -1,15 +1,15 @@
 # setwd("~/Desktop/04.湘湖实验室/李攀RNA-seq/")
-library(rtracklayer)
-library(dplyr)
-library(tximport)
-library(DESeq2)
-library(ggplot2)
-library(pheatmap)
-library(apeglm)
-library(VennDiagram)
-library(ggrepel)
-library(EnhancedVolcano)
-library(optparse)
+suppressMessages(library(rtracklayer))
+suppressMessages(library(dplyr))
+suppressMessages(library(tximport))
+suppressMessages(library(DESeq2))
+suppressMessages(library(ggplot2))
+suppressMessages(library(pheatmap))
+suppressMessages(library(apeglm))
+suppressMessages(library(VennDiagram))
+suppressMessages(library(ggrepel))
+suppressMessages(library(EnhancedVolcano))
+suppressMessages(library(optparse))
 
 
 # ====================================================================
@@ -29,9 +29,9 @@ library(optparse)
 # ====================================================================
 
 option_list <- list(
-  make_option("--metafile", type="number", default=1, help="差异倍数"),
-  make_option("--lfc", type="number", default=1, help="差异倍数"),
-  make_option("--pval", type="number", default=0.05, help="p值阈值"),
+  make_option("--metafile", type="character", default=1, help="差异倍数"),
+  make_option("--lfc", type="double", default=1, help="差异倍数"),
+  make_option("--pval", type="double", default=0.05, help="p值阈值"),
   make_option("--gtf", type="character", default=NULL, help="gtf文件"),
   make_option("--untreated", type="character", default=NULL, help="指定对照组"),
   make_option("--mappedfiles", type="character", default=NULL, help="RNAseq数据比对文件")
@@ -39,11 +39,12 @@ option_list <- list(
 
 args <- parse_args(OptionParser(option_list=option_list))
 
-lfc <- args$metafile
+metafile <- args$metafile
 lfc <- args$lfc
 pval <- args$pval
 gtf <- args$gtf
 out <- args$out
+untreated <- args$untreated
 mappedfiles <- args$mappedfiles
 mappedfiles <- mappedfiles %>% strsplit(",") %>% unlist()
 
