@@ -1,4 +1,4 @@
-setwd("~/Desktop/04.湘湖实验室/李攀RNA-seq/")
+# setwd("~/Desktop/04.湘湖实验室/李攀RNA-seq/")
 library(rtracklayer)
 library(dplyr)
 library(tximport)
@@ -7,7 +7,9 @@ library(ggplot2)
 library(pheatmap)
 library(apeglm)
 library(VennDiagram)
-
+library(ggrepel)
+library(EnhancedVolcano)
+library(optparse)
 
 
 # ====================================================================
@@ -16,9 +18,34 @@ library(VennDiagram)
 
 
 #Set your log-fold-change and p-value thresholds
-lfc = 1
-pval = 0.05
-untreated <- "mKO"
+# lfc = 1
+# pval = 0.05
+# untreated <- "mKO"
+# metafile <- "~/Desktop/04.湘湖实验室/李攀RNA-seq/metafile"
+# gtf <- "~/Desktop/04.湘湖实验室/李攀RNA-seq/Gallus_gallus.bGalGal1.mat.broiler.GRCg7b.115.gtf"
+
+# ====================================================================
+#  命令行参数传递
+# ====================================================================
+
+option_list <- list(
+  make_option("--metafile", type="number", default=1, help="差异倍数"),
+  make_option("--lfc", type="number", default=1, help="差异倍数"),
+  make_option("--pval", type="number", default=0.05, help="p值阈值"),
+  make_option("--gtf", type="character", default=NULL, help="gtf文件"),
+  make_option("--untreated", type="character", default=NULL, help="指定对照组"),
+  make_option("--mappedfiles", type="character", default=NULL, help="RNAseq数据比对文件")
+)
+
+args <- parse_args(OptionParser(option_list=option_list))
+
+lfc <- args$metafile
+lfc <- args$lfc
+pval <- args$pval
+gtf <- args$gtf
+out <- args$out
+mappedfiles <- args$mappedfiles
+mappedfiles <- mappedfiles %>% strsplit(",") %>% unlist()
 
 
 # ====================================================================
@@ -26,14 +53,14 @@ untreated <- "mKO"
 # ====================================================================
 
 ### 读取元数据 ==================================
-meta_table <- read.table("~/Desktop/04.湘湖实验室/李攀RNA-seq/metafile", sep = ",", header = T, row.names = 1)
+meta_table <- read.table(metafile, sep = ",", header = T, row.names = 1)
 meta_table$GroupID <- as.factor(meta_table$GroupID)
 
 
 treated <- setdiff(meta_table$GroupID %>% as.vector() %>% unique(), untreated)
 
 ### 从gtf文件中提取gene_id和transcript_id信息 =====
-gtf <- import("~/Desktop/04.湘湖实验室/李攀RNA-seq/Gallus_gallus.bGalGal1.mat.broiler.GRCg7b.115.gtf")
+gtf <- import(gtf)
 tx2gene <- gtf %>%
   as.data.frame() %>%
   select(transcript_id,gene_id) %>% # 顺序必须是先转录本ID，再基因ID
@@ -48,10 +75,9 @@ rownames(genenamemapfile) <- genenamemapfile$gene_id
 
 
 ### 读取RNA表达数量信息 ==============================
-samples = read.table("~/Desktop/04.湘湖实验室/李攀RNA-seq/samples.txt")
 
 ### 导入转录本水平数据汇总到基因水平
-counts.imported <- tximport::tximport(files = as.character(samples[,2]), type = 'salmon', tx2gene = tx2gene)
+counts.imported <- tximport::tximport(files = as.character(mappedfiles), type = 'salmon', tx2gene = tx2gene)
 
 ###创建DESeq2对象 =====================================
 dds <- DESeqDataSetFromTximport(counts.imported, colData = meta_table, design = ~GroupID )
