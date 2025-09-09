@@ -13,6 +13,7 @@ suppressMessages(library(optparse))
 suppressMessages(library(org.Gg.eg.db))
 library(clusterProfiler)
 library(enrichplot)
+library(org.AnasPlatyrhynchos.domestica.eg.sqlite)
 
 # ====================================================================
 #  参数设置
@@ -60,7 +61,7 @@ if(stringr::str_to_lower(species) == "chicken"){
 }
 
 if(stringr::str_to_lower(species) == "duck"){
-  backgroupDB = 
+  backgroupDB = org.AnasPlatyrhynchos.domestica.eg.sqlite 
   organism 
 }
 
