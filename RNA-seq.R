@@ -1,4 +1,7 @@
 # setwd("~/Desktop/04.湘湖实验室/李攀RNA-seq/")
+
+.libPaths(c("/home/zhangchunyuan/tools/DEseq2/lib/R/library", .libPaths()))
+
 suppressMessages(library(rtracklayer))
 suppressMessages(library(dplyr))
 suppressMessages(library(tximport))
