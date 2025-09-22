@@ -4,6 +4,14 @@ import numpy as np
 import yaml
 import json
 import os
+import glob
+
+# === 工具或分析流程选择 ===============================
+pipeline = "onestep" # 使用rsem工具一步完成比对和统计
+
+print(pipeline)
+# === 指定分析步骤 ====================================
+step = "map"
 
 
 # === 元信息 =========================================
@@ -22,16 +30,19 @@ pval = 0.05
 
 
 # === 指定参考基因组 ==================================
-## 本流程使用STAR进行比对，注意在比对前需要先手动对参考基因组建立索引
-genomeDir = "/home/zhangchunyuan/zhangchunyuan/reference/bGalGal1_mat_broiler_GRCg7b_Ensembl/STARindex"
-ref_fa = "/home/zhangchunyuan/zhangchunyuan/reference/bGalGal1_mat_broiler_GRCg7b_Ensembl/Gallus_gallus.bGalGal1.mat.broiler.GRCg7b.dna.toplevel.fa"
-ref_gtf = "/home/zhangchunyuan/zhangchunyuan/reference/bGalGal1_mat_broiler_GRCg7b_Ensembl/Gallus_gallus.bGalGal1.mat.broiler.GRCg7b.115.gtf"
-ref_transscripts = "/home/zhangchunyuan/zhangchunyuan/reference/bGalGal1_mat_broiler_GRCg7b_Ensembl/Gallus_gallus.bGalGal1.mat.broiler.GRCg7b.115.transcripts.fa"
 
-## 在基因组所在文件夹执行下行命令 双端150bp测序时, --sjdbOverhang 149
-## STAR --runThreadN 64 --runMode genomeGenerate --genomeDir ./STARindex --genomeFastaFiles ./STARindex/GCF_047663525.1_IASCAAS_PekinDuck_T2T_genomic.fna --sjdbGTFfile  ./GCF_047663525.1_IASCAAS_PekinDuck_T2T_genomic.gtf --sjdbOverhang 149 --genomeSAindexNbases 13
+## 参考基因组建立索引
+### 在基因组所在文件夹执行下行命令 双端150bp测序时, --sjdbOverhang 149
+### STAR --runThreadN 64 --runMode genomeGenerate --genomeDir ./STARindex --genomeFastaFiles ./STARindex/GCF_047663525.1_IASCAAS_PekinDuck_T2T_genomic.fna --sjdbGTFfile  ./GCF_047663525.1_IASCAAS_PekinDuck_T2T_genomic.gtf --sjdbOverhang 149 --genomeSAindexNbases 13
+## rsem也需要创建参考基因组
 
+### ~/tools/rsem/bin/rsem-prepare-reference --gtf GCF_047663525.1_IASCAAS_PekinDuck_T2T_genomic.gtf --star GCF_047663525.1_IASCAAS_PekinDuck_T2T_genomic.fna RSEMindex/IASCAAS_PekinDuck_T2T -p 64 
 
+## 创建transcript.fa文件
+### 本流程使用*_Aligned.toTranscriptome.out.bam文件提取表达量
+### 由于该文件是使用转录本进行定位的，因此需要根据参考基因组和gtf文件制作转录本构成的新参考基因组
+### gffread -w GCF_047663525.1_IASCAAS_PekinDuck_T2T_transcripts.fna -g GCF_047663525.1_IASCAAS_PekinDuck_T2T_genomic.fna GCF_047663525.1_IASCAAS_PekinDuck_T2T_genomic.gff 
+### sed 's/>rna-/>/'  GCF_047663525.1_IASCAAS_PekinDuck_T2T_transcripts.fna -i 
 
 # === 外部参数处理 ===================================
 
@@ -41,10 +52,14 @@ if os.path.exists(infotable):
     metainfo.columns = [f'V{i+1}' for i in range(len(metainfo.columns))]
     metainfo = metainfo[ ~np.array([v.startswith("#") for v in metainfo.V1.to_list()])]  # 删除被#注释掉的行
     # metainfo.index = metainfo.V1
-
-    metainfo_dict = dict(zip(metainfo.V1, metainfo.V2)) 
-    
     samples = metainfo.V1.tolist()
+    # 
+    metainfo_dict_Group = dict(zip(metainfo.V1, metainfo.V2)) 
+    # 
+    metainfo_dict_Genome = dict(zip(metainfo.V1, metainfo.V3)) 
+    referenceDir = "/home/zhangchunyuan/zhangchunyuan/reference/"
+
+    
 
     # 设置wildcard约束
     wildcard_constraints:
