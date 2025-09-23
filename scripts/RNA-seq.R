@@ -23,7 +23,7 @@ option_list <- list(
   make_option("--infotable", type="character", default=NULL, help="差异倍数"),
   make_option("--species", type="character", default=NULL, help="物种，与注释时使用的背景数据有关系"),
   make_option("--lfc", type="double", default=1, help="差异倍数"),
-  make_option("--pval", type="double", default=0.05, help="p值阈值"),
+  make_option("--pval", type="double", default=0.05, help="显著性阈值，转录组一般使用padj"),
   make_option("--gtf", type="character", default=NULL, help="gtf文件"),
   make_option("--untreated", type="character", default=NULL, help="指定对照组"),
   make_option("--CountingMethod", type="character", default="rsem", help="表达量统计工具，影响数据导入的格式"),
@@ -50,16 +50,16 @@ outdir <- args$outdir
 
 
 #Set your log-fold-change and p-value thresholds
-# lfc = 1
-# pval = 0.05
-# untreated <- "mKO"
-# infotable <- "/home/zhangchunyuan/zhangchunyuan/lipan/RNA-seq/infotable.csv"
-# gtf <- "/home/zhangchunyuan/zhangchunyuan/reference/bGalGal1_mat_broiler_GRCg7b/GCF_016699485.2_bGalGal1.mat.broiler.GRCg7b_genomic.gtf"
-# # mappedfiles <- c("result/576-F4/quant.sf",  "result/576-F9/quant.sf","result/576-W5/quant.sf", "result/W2-576/quant.sf", "result/589-1-GF/quant.sf", "result/589-4-GF/quant.sf" )
-# CountingMethod <- "rsem"
-# 
-# CountingFiles.genes <- c("result/RSEM/576-F4.genes.results", "result/RSEM/576-F9.genes.results",  "result/RSEM/576-W5.genes.results",  "result/RSEM/589-1-GF.genes.results",  "result/RSEM/589-4-GF.genes.results",  "result/RSEM/W2-576.genes.results")
-# CountingFiles.isoforms <- c("result/RSEM/576-F4.isoforms.results", "result/RSEM/576-F9.isoforms.results",  "result/RSEM/576-W5.isoforms.results",  "result/RSEM/589-1-GF.isoforms.results",  "result/RSEM/589-4-GF.isoforms.results",  "result/RSEM/W2-576.isoforms.results")
+lfc = 1
+pval = 0.05
+untreated <- "mKO"
+infotable <- "/home/zhangchunyuan/zhangchunyuan/lipan/RNA-seq/infotable.csv"
+gtf <- "/home/zhangchunyuan/zhangchunyuan/reference/bGalGal1_mat_broiler_GRCg7b/GCF_016699485.2_bGalGal1.mat.broiler.GRCg7b_genomic.gtf"
+# mappedfiles <- c("result/576-F4/quant.sf",  "result/576-F9/quant.sf","result/576-W5/quant.sf", "result/W2-576/quant.sf", "result/589-1-GF/quant.sf", "result/589-4-GF/quant.sf" )
+CountingMethod <- "rsem"
+
+CountingFiles.genes <- c("result/RSEM/576-F4.genes.results", "result/RSEM/576-F9.genes.results",  "result/RSEM/576-W5.genes.results",  "result/RSEM/589-1-GF.genes.results",  "result/RSEM/589-4-GF.genes.results",  "result/RSEM/W2-576.genes.results")
+CountingFiles.isoforms <- c("result/RSEM/576-F4.isoforms.results", "result/RSEM/576-F9.isoforms.results",  "result/RSEM/576-W5.isoforms.results",  "result/RSEM/589-1-GF.isoforms.results",  "result/RSEM/589-4-GF.isoforms.results",  "result/RSEM/W2-576.isoforms.results")
 
 
 # ====================================================================
@@ -97,7 +97,10 @@ dds$GroupID <- relevel(dds$GroupID, ref = untreated)
 # 运行DESeq2
 dds <- DESeq(dds)  # 这一步自动进行了标准化
 
+# 输出Disp图
+pdf(file = file.path(outdir, "Disp.pdf"),  width = 6, height = 5)
 DESeq2::plotDispEsts(dds)
+dev.off()
 # resultsNames(dds)
 
 # ====================================================================
@@ -135,10 +138,10 @@ for (t in treated) {
 
   
   ###绘制火山图 ========================================
-  p <- EnhancedVolcano::EnhancedVolcano(LFC.result,
-                  lab = LFC.result$gene_name,
+  EnhancedVolcano::EnhancedVolcano(LFC.result,
+                  lab = rownames(LFC.result),
                   x = 'log2FoldChange',
-                  y = 'pvalue',
+                  y = 'padj',
                   title = pairname,
                   subtitle = NULL,
                   pCutoff = pval,
@@ -155,16 +158,16 @@ for (t in treated) {
   
   
   ### 输出差异分析表格 ==================================
-  LFC.result <- LFC.result[order(LFC.result$pvalue),]
+  LFC.result <- LFC.result[order(LFC.result$padj),]
   write.csv(as.data.frame(LFC.result), file.path(outdir,paste0(pairname, "_DEseq2_results.csv")))
   
   
   ### 绘制热图 ==========================================
-  sig_genes <- subset(LFC, pvalue < pval & abs(log2FoldChange) > lfc) %>% rownames()
+  sig_genes <- subset(LFC, padj < pval & abs(log2FoldChange) > lfc) %>% rownames()
   groupA <- meta_table %>% filter(GroupID == t) %>% rownames()
   groupB <- meta_table %>% filter(GroupID == untreated) %>% rownames() 
   #pheatmap( assay(dds)[sig_genes,c(groupA, groupB)], scale = "row" )
-  p.heatmap <- pheatmap(assay(vst(dds))[sig_genes,c(groupA, groupB)], scale = "row", show_rownames = F)
+  p.heatmap <- pheatmap::pheatmap(assay(vst(dds))[sig_genes,c(groupA, groupB)], scale = "row", show_rownames = F)
   filename <- paste0(pairname, ".Heatmap.pdf")
   ggsave(plot = p.heatmap, filename = file.path(outdir,filename), width = 6, height = 6, create.dir = TRUE )
 
