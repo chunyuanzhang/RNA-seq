@@ -138,7 +138,7 @@ for (t in treated) {
 
   
   ###绘制火山图 ========================================
-  EnhancedVolcano::EnhancedVolcano(LFC.result,
+  p.vol <- EnhancedVolcano::EnhancedVolcano(LFC.result,
                   lab = rownames(LFC.result),
                   x = 'log2FoldChange',
                   y = 'padj',
@@ -154,7 +154,7 @@ for (t in treated) {
   
   
   filename <- paste0(pairname, ".Volcano.pdf")
-  ggsave(filename = file.path(outdir,filename), plot = p, width = 10, height = 7, create.dir = TRUE)
+  ggsave(filename = file.path(outdir,filename), plot = p.vol, width = 10, height = 7, create.dir = TRUE)
   
   
   ### 输出差异分析表格 ==================================

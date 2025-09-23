@@ -29,7 +29,7 @@ def outfiles():
             files.append(expand("test/{sample}", sample = samples))
     if step == "DEseq" or step == "all":
         include: "rules/4.DEseq.smk"
-        files.append("DEseq_analysis.done")
+        files.append("result/DEseq/PCA.pdf")
     # files.append(expand("result/STAR/{sample}/{sample}-bamqc-qualimap-report/qualimapReport.html", sample = samples))
     # files.append("PCA.pdf")
     print(files)
