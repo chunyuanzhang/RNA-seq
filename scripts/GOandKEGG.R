@@ -1,38 +1,30 @@
-# setwd("~/Desktop/04.湘湖实验室/李攀RNA-seq/")
-
 .libPaths(c("/home/zhangchunyuan/tools/DEseq2/lib/R/library", .libPaths()))
 
-=======
-setwd("~/Desktop/04.湘湖实验室/李攀RNA-seq/")
-suppressMessages(library(rtracklayer))
 suppressMessages(library(dplyr))
-suppressMessages(library(tximport))
-suppressMessages(library(DESeq2))
-suppressMessages(library(ggplot2))
-suppressMessages(library(pheatmap))
-suppressMessages(library(apeglm))
 suppressMessages(library(VennDiagram))
-suppressMessages(library(ggrepel))
-suppressMessages(library(EnhancedVolcano))
 suppressMessages(library(optparse))
-suppressMessages(library(org.Gg.eg.db))
-library(clusterProfiler)
-library(enrichplot)
-library(org.AnasPlatyrhynchos.domestica.eg.sqlite)
+
+# suppressMessages(library(org.Gg.eg.db))
+# library(clusterProfiler)
+# library(enrichplot)
+# library(org.AnasPlatyrhynchos.domestica.eg.sqlite)
+
 
 # ====================================================================
-#  参数设置
+#  注释背景文件选择
 # ====================================================================
 
 
-#Set your log-fold-change and p-value thresholds
-lfc = 1
-pval = 0.05
-untreated <- "mKO"
-metafile <- "~/Desktop/04.湘湖实验室/李攀RNA-seq/metafile"
-gtf <- "~/Desktop/04.湘湖实验室/李攀RNA-seq/Gallus_gallus.bGalGal1.mat.broiler.GRCg7b.115.gtf"
-metafile <- "~/Desktop/04.湘湖实验室/李攀RNA-seq/metafile"
-mappedfiles <- c("result/576-F4/quant.sf",  "result/576-F9/quant.sf","result/576-W5/quant.sf", "result/W2-576/quant.sf", "result/589-1-GF/quant.sf", "result/589-4-GF/quant.sf" )
+if(stringr::str_to_lower(species) == "chicken"){
+  backgroupDB = org.Gg.eg.db
+  organism = "gga"
+}
+
+if(stringr::str_to_lower(species) == "duck"){
+  backgroupDB = org.AnasPlatyrhynchos.domestica.eg.sqlite 
+  organism 
+}
+
 
 # ====================================================================
 #  命令行参数传递
@@ -45,6 +37,7 @@ option_list <- list(
   make_option("--pval", type="double", default=0.05, help="p值阈值"),
   make_option("--gtf", type="character", default=NULL, help="gtf文件"),
   make_option("--untreated", type="character", default=NULL, help="指定对照组"),
+  make_option("--CountingMethod", type="character", default="rsem", help="表达量统计工具，影响数据导入的格式"),
   make_option("--mappedfiles", type="character", default=NULL, help="RNAseq数据比对文件")
 )
 
@@ -57,18 +50,10 @@ gtf <- args$gtf
 out <- args$out
 untreated <- args$untreated
 mappedfiles <- args$mappedfiles
+CountingMethod <- args$CountingMethod
 mappedfiles <- mappedfiles %>% strsplit(",") %>% unlist()
+
 species <- args$species
-
-if(stringr::str_to_lower(species) == "chicken"){
-  backgroupDB = org.Gg.eg.db
-  organism = "gga"
-}
-
-if(stringr::str_to_lower(species) == "duck"){
-  backgroupDB = org.AnasPlatyrhynchos.domestica.eg.sqlite 
-  organism 
-}
 
 
 # ====================================================================
@@ -142,133 +127,7 @@ KEGG_enrchment <- function(diff_genes, backgroupDB){
 
 
 
-
-
-
-
-
-# ====================================================================
-#  导入数据
-# ====================================================================
-
-### 读取元数据 ==================================
-meta_table <- read.table(metafile, sep = ",", header = T, row.names = 1)
-meta_table$GroupID <- as.factor(meta_table$GroupID)
-
-treated <- setdiff(meta_table$GroupID %>% as.vector() %>% unique(), untreated)
-
-### 从gtf文件中提取gene_id和transcript_id信息 =====
-gtf <- import(gtf)
-
-tx2gene <- gtf %>%
-  as.data.frame() %>%
-  dplyr::select(transcript_id, gene_id) %>% # 顺序必须是先转录本ID，再基因ID
-  dplyr::filter(!is.na(transcript_id)) %>%
-  unique()
-
-genenamemapfile <- gtf %>% 
-  as.data.frame() %>% 
-  dplyr::select(gene_id, gene_name ) %>% 
-  unique() 
-rownames(genenamemapfile) <- genenamemapfile$gene_id
-
-
-### 读取RNA表达数量信息 ==============================
-
-### 导入转录本水平数据汇总到基因水平
-counts.imported <- tximport::tximport(files = as.character(mappedfiles), type = 'salmon', tx2gene = tx2gene)
-
-###创建DESeq2对象 =====================================
-dds <- DESeqDataSetFromTximport(counts.imported, colData = meta_table, design = ~GroupID )
-
-
-
-# ====================================================================
-#  DESeq2分析
-# ====================================================================
-
-# 制定比较组，将mKO指定为case
-# 不指定的话会根据字符顺序比较
-dds$GroupID <- relevel(dds$GroupID, ref = untreated)
-
-# 运行DESeq2
-dds <- DESeq(dds)  # 这一步自动进行了标准化
-
-# plotDispEsts(dds)
-# resultsNames(dds)
-
-# ====================================================================
-# PCA
-# ====================================================================
-
-### 样本量比较少的时候和比较多的时候所使用的方法不同
-
-### 样本量比较少时使用以下方法
-rld <- DESeq2::rlog(dds, blind = TRUE) #This function transforms the count data to the log2 scale in a way which minimizes differences between samples for rows with small counts, and which normalizes with respect to library size.
-rld_mat <- assay(rld)
-pca <- prcomp(t(rld_mat))
-pca <- pca$x %>% as.data.frame() 
-pca$GroupID <- meta_table[rownames(pca),"GroupID"]
-p <- ggplot(data = pca, aes(x = PC1, y = PC2, colour = GroupID)) + geom_point()
-ggsave(filename = "PCA.pdf", plot = p, width = 6, height = 5)
-
-
-
-# ====================================================================
-#  每个比较对信息提取
-# ====================================================================
-
-
-for (t in treated) {
-  
-  ### 从dds文件中提取结果 ===============================
-  pairname <- paste0("GroupID","_", t, "_vs_", untreated)
-  # res <-  results(dds,  contrast = c("GroupID", t, untreated))   
-
-  ### 对不可靠的倍数变化估计进行贝叶斯收缩 ==============
-  ### 当样本量较少时这种收缩是很有必要的
-  LFC <- DESeq2::lfcShrink(dds, coef = pairname, type = "apeglm") # coef 指定了比较组
-  ### The contens of the LFC dataframe contain the log2 fold-change, as well as the p-value and adjusted p-value
-  LFC.result <- as.data.frame(LFC)
-  LFC.result$gene_name <- genenamemapfile[rownames(LFC), "gene_name"]
-
-  
-  ###绘制火山图 ========================================
-  p <- EnhancedVolcano(LFC.result,
-                  lab = LFC.result$gene_name,
-                  x = 'log2FoldChange',
-                  y = 'pvalue',
-                  title = pairname,
-                  subtitle = NULL,
-                  pCutoff = pval,
-                  FCcutoff = lfc,
-                  labSize = 3,
-                  gridlines.major = FALSE,
-                  gridlines.minor = FALSE,
-                  legendPosition = "right"
-  )
-  
-  
-  filename <- paste0(pairname, ".Volcano.pdf")
-  ggsave(filename = filename, plot = p, width = 10, height = 7)
-  
-  
-  ### 输出差异分析表格 ==================================
-  LFC.result <- LFC.result[order(LFC.result$pvalue),]
-  write.csv(as.data.frame(LFC.result), paste0(pairname, "_DEseq2_results.csv"))
-  
-  
-  ### 绘制热图 ==========================================
-  sig_genes <- subset(LFC, pvalue < pval & abs(log2FoldChange) > lfc) %>% rownames()
-  groupA <- meta_table %>% filter(GroupID == t) %>% rownames()
-  groupB <- meta_table %>% filter(GroupID == untreated) %>% rownames() 
-  #pheatmap( assay(dds)[sig_genes,c(groupA, groupB)], scale = "row" )
-  p.heatmap <- pheatmap(assay(vst(dds))[sig_genes,c(groupA, groupB)], scale = "row", show_rownames = F)
-  filename <- paste0(pairname, ".Heatmap.pdf")
-  ggsave(plot = p.heatmap, filename = "~/Desktop/04.湘湖实验室/李攀RNA-seq/GroupID_wko_vs_mKO.heatmap.pdf", width = 6, height = 6  )
-
-  
-  ### GO注释 和 KEGG注释 =================================
+ ### GO注释 和 KEGG注释 =================================
   
   #### 所有差异基因
   sig_genes.Symbol <- LFC.result %>% 
@@ -285,7 +144,7 @@ for (t in treated) {
   filename <- paste0(pairname, ".all.KEGG.csv")
   write.csv(kegg.result[[1]]@result, file = filename)
   filename <- paste0(pairname, ".all.KEGG.pdf")
-  ggsave(filename = filename, plot = kegg.result[[2]], width = 10, height = 10)
+  ggsave(filename = file.path(outdir, filename), plot = kegg.result[[2]], width = 10, height = 10)
   
   
   
@@ -326,9 +185,11 @@ for (t in treated) {
 
   
   
-  
-  
-}
+
+
+
+
+
 
 
 

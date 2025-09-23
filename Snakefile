@@ -9,9 +9,9 @@ def outfiles():
     if step == "qc" or step == "all":
         ### 原始数据质量控制
         include: "rules/1.QC.smk"
-        files.append("result/QC/Raw/multiqc_report.html")
+        #files.append("result/QC/Raw/multiqc_report.html")
         files.append(expand("result/CleanData/{sample}.clean.{num}.fq.gz", sample = samples,num = [1,2]))
-        files.append("result/QC/Clean/multiqc_report.html")
+        #files.append("result/QC/Clean/multiqc_report.html")
     if pipeline == "onestep":
         ### rsem 一步完成比对和统计，注意比对同样适用STAR工具，两步法里面STAR的参数参考rsem的参数
         include: "rules/rsem.smk"
@@ -27,7 +27,9 @@ def outfiles():
             include: "rules/3.Count.smk"
             #files.append(expand("result/Count/{sample}/{sample}.salmon_quant/quant.sf", sample = samples))
             files.append(expand("test/{sample}", sample = samples))
-
+    if step == "DEseq" or step == "all":
+        include: "rules/4.DEseq.smk"
+        files.append("DEseq_analysis.done")
     # files.append(expand("result/STAR/{sample}/{sample}-bamqc-qualimap-report/qualimapReport.html", sample = samples))
     # files.append("PCA.pdf")
     print(files)
@@ -56,15 +58,15 @@ rule all:
 #                 f.write(s + "\t" + "result/STAR/" + s + "/" + s + ".salmon_quant/quant.sf" + "\t" + metainfo_dict[s] + "\n")
 
 
-rule DEseq2:
-    input:
-        count = expand("result/STAR/{sample}/{sample}.salmon_quant/quant.sf", sample = samples)
-    output:
-        PCA = "PCA.pdf"
-    run:
-        mappedfiles = ','.join(input.count)
-        cmd = (f"~/tools/DEseq2/bin/Rscript RNA-seq.R --metafile {infotable} --lfc {lfc} --pval {pval} --gtf {ref_gtf} --untreated {untreated} --mappedfiles {mappedfiles}")
-        print(cmd)
-        os.system(cmd)
+# rule DEseq2:
+#     input:
+#         count = expand("result/STAR/{sample}/{sample}.salmon_quant/quant.sf", sample = samples)
+#     output:
+#         PCA = "PCA.pdf"
+#     run:
+#         mappedfiles = ','.join(input.count)
+#         cmd = (f"~/tools/DEseq2/bin/Rscript RNA-seq.R --metafile {infotable} --lfc {lfc} --pval {pval} --gtf {ref_gtf} --untreated {untreated} --mappedfiles {mappedfiles}")
+#         print(cmd)
+#         os.system(cmd)
 
 

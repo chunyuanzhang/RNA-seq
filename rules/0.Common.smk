@@ -9,13 +9,13 @@ import glob
 # === 工具或分析流程选择 ===============================
 pipeline = "onestep" # 使用rsem工具一步完成比对和统计
 
-print(pipeline)
+
 # === 指定分析步骤 ====================================
-step = "map"
+step = "all"
 
 
 # === 元信息 =========================================
-infotable = "metafile"
+infotable = "infotable.csv"
 untreated = "mKO"
 lfc = 1
 pval = 0.05
@@ -57,6 +57,7 @@ if os.path.exists(infotable):
     metainfo_dict_Group = dict(zip(metainfo.V1, metainfo.V2)) 
     # 
     metainfo_dict_Genome = dict(zip(metainfo.V1, metainfo.V3)) 
+    metainfo_dict_Species = dict(zip(metainfo.V1, metainfo.V4)) 
     referenceDir = "/home/zhangchunyuan/zhangchunyuan/reference/"
 
     
