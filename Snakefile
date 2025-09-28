@@ -16,6 +16,7 @@ def outfiles():
         ### rsem 一步完成比对和统计，注意比对同样适用STAR工具，两步法里面STAR的参数参考rsem的参数
         include: "rules/rsem.smk"
         files.append(expand("result/RSEM/{sample}.genes.results", sample = samples))
+        files.append(expand("result/RSEM/{sample}.isoforms.results", sample = samples))
     if pipeline == "twostep":
         if step == "map" or step == "all":
             ### STAR 将质控后的 reads 比对到参考基因组

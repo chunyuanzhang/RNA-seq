@@ -16,7 +16,7 @@ step = "all"
 
 # === 元信息 =========================================
 infotable = "infotable.csv"
-untreated = "Chicken"
+untreated = "mKO"
 lfc = 1
 pval = 0.05
 # infotable文件内容示意，为了代码重复使用方便，infotable不要列

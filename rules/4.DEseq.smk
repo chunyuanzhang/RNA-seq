@@ -15,8 +15,7 @@ if interspecies is not True:
                     --infotable {infotable} \
                     --lfc {lfc}  --pval {pval}  --untreated {untreated} \
                     --CountingMethod rsem \
-                    --CountingFiles.isoforms {params.isoforms} \
-                    --CountingFiles.genes {params.genes}
+                    --CountingFiles.isoforms {params.isoforms} 
                 """
 
 else:
