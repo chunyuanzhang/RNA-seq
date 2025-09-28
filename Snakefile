@@ -27,12 +27,16 @@ def outfiles():
             include: "rules/3.Count.smk"
             #files.append(expand("result/Count/{sample}/{sample}.salmon_quant/quant.sf", sample = samples))
             files.append(expand("test/{sample}", sample = samples))
-    if step == "DEseq" or step == "all":
+    if step == "deseq" or step == "all":
         include: "rules/4.DEseq.smk"
         files.append("result/DEseq/PCA.pdf")
-    # files.append(expand("result/STAR/{sample}/{sample}-bamqc-qualimap-report/qualimapReport.html", sample = samples))
-    # files.append("PCA.pdf")
-    print(files)
+        files.append("result/DEseq/diffgenes.tsv")
+    # if step == "annotate" or step == "all":
+    #     include: "rules/5.GOandKEGG.smk"
+    #     files.append()
+        # files.append(expand("result/STAR/{sample}/{sample}-bamqc-qualimap-report/qualimapReport.html", sample = samples))
+        
+    # print(files)
     return files
 
 

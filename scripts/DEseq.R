@@ -21,10 +21,8 @@ suppressMessages(library(optparse))
 
 option_list <- list(
   make_option("--infotable", type="character", default=NULL, help="差异倍数"),
-  make_option("--species", type="character", default=NULL, help="物种，与注释时使用的背景数据有关系"),
   make_option("--lfc", type="double", default=1, help="差异倍数"),
   make_option("--pval", type="double", default=0.05, help="显著性阈值，转录组一般使用padj"),
-  make_option("--gtf", type="character", default=NULL, help="gtf文件"),
   make_option("--untreated", type="character", default=NULL, help="指定对照组"),
   make_option("--CountingMethod", type="character", default="rsem", help="表达量统计工具，影响数据导入的格式"),
   make_option("--CountingFiles.isoforms", type="character", default=NULL, help="基于转录本的表达量统计文件"),
@@ -38,7 +36,6 @@ args <- parse_args(OptionParser(option_list=option_list))
 infotable <- args$infotable
 lfc <- args$lfc
 pval <- args$pval
-gtf <- args$gtf
 out <- args$out
 untreated <- args$untreated
 CountingFiles.isoforms <- args$CountingFiles.isoforms
@@ -50,24 +47,20 @@ outdir <- args$outdir
 
 
 #Set your log-fold-change and p-value thresholds
-lfc = 1
-pval = 0.05
-untreated <- "mKO"
-infotable <- "/home/zhangchunyuan/zhangchunyuan/lipan/RNA-seq/infotable.csv"
-gtf <- "/home/zhangchunyuan/zhangchunyuan/reference/bGalGal1_mat_broiler_GRCg7b/GCF_016699485.2_bGalGal1.mat.broiler.GRCg7b_genomic.gtf"
-# mappedfiles <- c("result/576-F4/quant.sf",  "result/576-F9/quant.sf","result/576-W5/quant.sf", "result/W2-576/quant.sf", "result/589-1-GF/quant.sf", "result/589-4-GF/quant.sf" )
-CountingMethod <- "rsem"
+# lfc = 1
+# pval = 0.05
+# untreated <- "mKO"
+# infotable <- "/home/zhangchunyuan/zhangchunyuan/lipan/RNA-seq/infotable.csv"
+# # mappedfiles <- c("result/576-F4/quant.sf",  "result/576-F9/quant.sf","result/576-W5/quant.sf", "result/W2-576/quant.sf", "result/589-1-GF/quant.sf", "result/589-4-GF/quant.sf" )
+# CountingMethod <- "rsem"
 
-CountingFiles.genes <- c("result/RSEM/576-F4.genes.results", "result/RSEM/576-F9.genes.results",  "result/RSEM/576-W5.genes.results",  "result/RSEM/589-1-GF.genes.results",  "result/RSEM/589-4-GF.genes.results",  "result/RSEM/W2-576.genes.results")
-CountingFiles.isoforms <- c("result/RSEM/576-F4.isoforms.results", "result/RSEM/576-F9.isoforms.results",  "result/RSEM/576-W5.isoforms.results",  "result/RSEM/589-1-GF.isoforms.results",  "result/RSEM/589-4-GF.isoforms.results",  "result/RSEM/W2-576.isoforms.results")
+# CountingFiles.genes <- c("result/RSEM/576-F4.genes.results", "result/RSEM/576-F9.genes.results",  "result/RSEM/576-W5.genes.results",  "result/RSEM/589-1-GF.genes.results",  "result/RSEM/589-4-GF.genes.results",  "result/RSEM/W2-576.genes.results")
+# CountingFiles.isoforms <- c("result/RSEM/576-F4.isoforms.results", "result/RSEM/576-F9.isoforms.results",  "result/RSEM/576-W5.isoforms.results",  "result/RSEM/589-1-GF.isoforms.results",  "result/RSEM/589-4-GF.isoforms.results",  "result/RSEM/W2-576.isoforms.results")
 
 
 # ====================================================================
 # 函数
 # ====================================================================
-
-
-
 
 
 
