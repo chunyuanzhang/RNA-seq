@@ -35,5 +35,7 @@ https://bioconductor.org/packages/devel/bioc/vignettes/EnhancedVolcano/inst/doc/
 
 
 
-
+目前已经完成使用自定义的KEGG注释流程，还需要增加GO注释
+目前多组比较是通过在R内循环实现的，最好改成snakemake自动控制，不再在R中循环，不好控制输出结果
+尽量让种间比较和种内比较保持一致，目前种内和种间的代码是有差别的
 

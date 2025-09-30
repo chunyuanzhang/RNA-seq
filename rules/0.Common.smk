@@ -16,7 +16,7 @@ step = "all"
 
 # === 元信息 =========================================
 infotable = "infotable.csv"
-untreated = "mKO"
+untreated = "Chicken"
 lfc = 1
 pval = 0.05
 # infotable文件内容示意，为了代码重复使用方便，infotable不要列
@@ -74,6 +74,10 @@ if os.path.exists(infotable):
     references = set(metainfo_dict_Genome.values())
     if len(references) > 1:
         interspecies = True
+        species = metainfo.V4.drop_duplicates().to_list()
+        print(species)
+        # 第四列存储物种信息
+        metainfo_dict_Species_to_Genome = dict(zip(metainfo.V4, metainfo.V3)) 
     else:
         interspecies = False
 

@@ -34,7 +34,6 @@ args <- parse_args(OptionParser(option_list=option_list))
 infotable <- args$infotable
 lfc <- args$lfc
 pval <- args$pval
-out <- args$out
 untreated <- args$untreated
 CountingFiles.isoforms <- args$CountingFiles.isoforms
 CountingFiles.isoforms <- CountingFiles.isoforms %>% strsplit(",") %>% unlist()

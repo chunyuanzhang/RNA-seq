@@ -25,7 +25,7 @@ else:
                 isoforms = expand("result/RSEM/{sample}.isoforms.results", sample = samples)
             output:
                 PCA = "result/DEseq/PCA.pdf",
-                diffgenes = "result/DEseq/diffgenes.tsv"
+                diffgenes = "result/DEseq/diffgenes.csv"
             params:
                 isoforms = lambda wildcards, input: ",".join(input.isoforms)
             shell:
@@ -38,3 +38,4 @@ else:
                     --CountingFiles.isoforms {params.isoforms} \
                     --orthologgenes result/Ortho_chicken_vs_duck/one_to_one_orthologgenes.txt
                 """
+

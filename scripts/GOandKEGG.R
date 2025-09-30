@@ -1,4 +1,4 @@
-.libPaths(c("/home/zhangchunyuan/tools/DEseq2/lib/R/library", .libPaths()))
+.libPaths("/home/zhangchunyuan/tools/rstudio/lib/R/library")
 
 suppressMessages(library(dplyr))
 suppressMessages(library(VennDiagram))

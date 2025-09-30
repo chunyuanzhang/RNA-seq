@@ -39,6 +39,7 @@ outdir <- args$outdir
 # untreated <- "Chicken"
 # infotable <- "/home/zhangchunyuan/zhangchunyuan/RNA-seq/infotable.csv"
 # CountingMethod <- "rsem"
+# outdir <- "result/DEseq"
 # CountingFiles.isoforms <- list.files(path = "result/RSEM", pattern = ".isoforms.results", full.names = T)
 # orthologgenes <- "/home/zhangchunyuan/zhangchunyuan/RNA-seq/result/Ortho_chicken_vs_duck/one_to_one_orthologgenes.txt"
 
@@ -97,7 +98,7 @@ meta_table$Species <- as.factor(meta_table$Species)
 ###创建DESeq2对象，指定谁是control，运行DEseq
 dds <- DESeq2::DESeqDataSetFromTximport(counts.genes, colData = meta_table, design = ~Species)
 dds$Species <- relevel(dds$Species, ref = untreated)
-dds <- DESeq(dds)  # 这一步自动进行了标准化
+dds <- DESeq2::DESeq(dds)  # 这一步自动进行了标准化
 
 
 #====================================================================
@@ -137,7 +138,7 @@ for (t in treated) {
   
   ### 从dds文件中提取结果 ===============================
   pairname <- paste0("Species","_", t, "_vs_", untreated)
-  result <- results(dds, name = pairname)
+  result <- DESeq2::results(dds, name = pairname)
   
   ###绘制火山图 ========================================
   p.vol <- EnhancedVolcano::EnhancedVolcano(result,
@@ -162,7 +163,25 @@ for (t in treated) {
   
   ### 输出差异分析表格 ==================================
   result <- result[order(result$padj),]
-  write.csv(as.data.frame(result), file.path(outdir,paste0(pairname, "_DEseq2_results.csv")))
+  result_dataframe <- as.data.frame(result) %>% 
+    tibble::rownames_to_column(var = "genename") %>%
+    mutate(
+      Up = case_when(
+        padj < pval & log2FoldChange > lfc ~ t,
+        padj < pval & log2FoldChange < -lfc ~ untreated,
+        TRUE ~ "NotSig"
+      )
+    ) %>%
+  left_join(., orthologgenes, by = "genename")
+  
+  write.csv(result_dataframe, file.path(outdir,paste0(pairname, "_DEseq2_results.csv")),
+    quote = F,  row.names = F, )
+  
+
+  ### 将差异基因都整理到一个表格中，便于控制输入和输出文件========
+  tmpdata <- result_dataframe %>% filter(Up != "NotSig") %>% mutate(compare = pairname)
+  diffgenes <- rbind(diffgenes,tmpdata )
+  remove(tmpdata)
   
   
   ### 绘制热图 ==========================================
@@ -174,13 +193,11 @@ for (t in treated) {
   filename <- paste0(pairname, ".Heatmap.pdf")
   ggsave(plot = p.heatmap, filename = file.path(outdir,filename), width = 6, height = 6, create.dir = TRUE )
   
-  ### 将差异基因都整理到一个表格中，便于控制输入和输出文件
-  diffgenes <- rbind(diffgenes, result %>% data.frame %>% filter(abs(log2FoldChange) > pval, padj < pval) %>% mutate(compare = pairname))
-  
+
 }
 
-diffgenes <- diffgenes %>% tibble::rownames_to_column(var = "genename")
-write.table(x = diffgenes, file = file.path(outdir, "diffgenes.tsv"), 
-            append = F, quote = F, sep = "\t", row.names = F, col.names = T)
+
+write.csv(x = diffgenes, file = file.path(outdir, "diffgenes.csv"), 
+             quote = F, row.names = F, )
 
 
