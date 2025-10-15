@@ -41,14 +41,17 @@ outdir <- args$outdir
 # CountingMethod <- "rsem"
 # outdir <- "result/DEseq"
 # CountingFiles.isoforms <- list.files(path = "result/RSEM", pattern = ".isoforms.results", full.names = T)
-# orthologgenes <- "/home/zhangchunyuan/zhangchunyuan/RNA-seq/result/Ortho_chicken_vs_duck/one_to_one_orthologgenes.txt"
+# orthologgenes <- "/home/zhangchunyuan/zhangchunyuan/Orthologgenes/Chicken_vs_Duck.one_to_one.orthologenes.txt"
 
+
+cat("与种内差异不同的是，中间差异需要先提取1:1同源的基因列表，再进行标准话，随后进行差异分析")
 
 #====================================================================
 # 读取元信息
 #====================================================================
 
-meta_table <- read.table(infotable, sep = ",", header = T, row.names = 1)
+meta_table <- read.table(infotable, sep = ",", header = T)
+rownames(meta_table) <- meta_table$SampleID
 meta_table_list <- split(x = meta_table, f = ~Species)
 species <- names(meta_table_list)
 
@@ -66,39 +69,82 @@ orthologgenes <- orthologgenes %>% mutate(
 
 
 #====================================================================
-# 按照meta_table的顺序读取文件，注意处理同源基因
+# 1、先提取同源基因的子集、合并、归一化、最后再差异分析
 #====================================================================
 
-counts.genes <- list()
-for (s in names(meta_table_list)) {
+# counts.genes <- list()
+# for (s in names(meta_table_list)) {
+#   
+#   sub_table <- meta_table_list[[s]]
+#   pattern <- rownames(sub_table) %>% paste0(collapse = "|")
+#   sub_isoforms <- CountingFiles.isoforms[grep(pattern = pattern, x = CountingFiles.isoforms)] # 按照meta_table的顺序进行调整
+#   cat("正在读取样本 ", pattern, "并按照同源基因提取子集")
+#   tx2gene <- read.delim(file = sub_isoforms[1], header = T) %>% select(transcript_id, gene_id)
+#   temp <- tximport::tximport(files = as.character(sub_isoforms), type = CountingMethod, tx2gene = tx2gene )  # 将种内各样本的表达数据导入
+#   
+#   # 将提取子集的表达数据合并在 counts.genes 中
+#   for (arr in names(temp)[1:3]) {
+#     temp[[arr]] <- temp[[arr]][orthologgenes[,s],]
+#     rownames(temp[[arr]]) <- orthologgenes[,"genename"]
+#     counts.genes[[arr]] <- cbind(counts.genes[[arr]], temp[[arr]])
+#   }
+#   
+#   counts.genes[[names(temp)[4]]] <- temp[[names(temp)[4]]]
+# }
+# 
+# meta_table$Species <- as.factor(meta_table$Species)
+# ###创建DESeq2对象，指定谁是control，运行DEseq
+# dds <- DESeq2::DESeqDataSetFromTximport(counts.genes, colData = meta_table, design = ~Species)
+# dds$Species <- relevel(dds$Species, ref = untreated)
+# dds <- DESeq2::DESeq(dds)  # 这一步自动进行了标准化
+
+
+#====================================================================
+# 2、先在种内分别归一化、然后提取同源基因的子集、再归一化、差异分析
+#====================================================================
+
+dds_list <- list()
+size_factors_combined <- c()
+merged_raw_counts <- c()
+merged_coldata <- c()
+
+for(s in names(meta_table_list)){
   
   sub_table <- meta_table_list[[s]]
   pattern <- rownames(sub_table) %>% paste0(collapse = "|")
   sub_isoforms <- CountingFiles.isoforms[grep(pattern = pattern, x = CountingFiles.isoforms)] # 按照meta_table的顺序进行调整
-  
+  cat("正在读取物种 ",s," 对应样本 ", pattern, "并按照同源基因提取子集")
   tx2gene <- read.delim(file = sub_isoforms[1], header = T) %>% select(transcript_id, gene_id)
-  temp <- tximport::tximport(files = as.character(sub_isoforms), type = CountingMethod, tx2gene = tx2gene )
+  counts.genes <- tximport::tximport(files = as.character(sub_isoforms), 
+                                     type = CountingMethod, 
+                                     tx2gene = tx2gene,
+                                     countsFromAbundance = "lengthScaledTPM" )  # 将种内各样本的表达数据导入
   
-  for (arr in names(temp)[1:3]) {
-    temp[[arr]] <- temp[[arr]][orthologgenes[,s],]
-    rownames(temp[[arr]]) <- orthologgenes[,"genename"]
-    counts.genes[[arr]] <- cbind(counts.genes[[arr]], temp[[arr]])
-  }
+  ### 统计size factor，并保存在 size_factors_combined 中，后续需要继续使用
+  dds_list[[s]] <- DESeq2::DESeqDataSetFromTximport(counts.genes, colData = sub_table, design = ~1)
+  dds_list[[s]] <- DESeq2::estimateSizeFactors(dds_list[[s]])
+  size_factors_combined <- c(size_factors_combined, sizeFactors(dds_list[[s]]) )
+  ### 提取同源基因的原始counts
+  raw_counts_array <- counts(dds_list[[s]], normalized = FALSE)[orthologgenes[[s]],]
+  rownames(raw_counts_array) <- orthologgenes[["genename"]]
   
-  counts.genes[[names(temp)[4]]] <- temp[[names(temp)[4]]]
+  ### 合并矩阵
+  merged_raw_counts <- cbind(merged_raw_counts, raw_counts_array)
+
 }
+### 重新给 meta_table 排序，保证矩阵中样本的顺序和表格中保持一致
+meta_table <- meta_table[colnames(merged_raw_counts), ]
 
-
-#====================================================================
-# 提取各物种同源基因的子集，给不同名字的基因名用新命名的基因重命名，好用于后续差异分析
-#====================================================================
-
-meta_table$Species <- as.factor(meta_table$Species)
-
-###创建DESeq2对象，指定谁是control，运行DEseq
-dds <- DESeq2::DESeqDataSetFromTximport(counts.genes, colData = meta_table, design = ~Species)
-dds$Species <- relevel(dds$Species, ref = untreated)
-dds <- DESeq2::DESeq(dds)  # 这一步自动进行了标准化
+### 将合并后的数据重新创建DEseq对象
+dds <- DESeq2::DESeqDataSetFromMatrix(
+  countData = merged_raw_counts,
+  colData = meta_table,
+  design = ~ Species  # 现在可以指定species作为变量
+)
+### 将种内各自估计的size factor赋给dds
+sizeFactors(dds) <- size_factors_combined
+### 该步骤会使用已经存在的size factor进行分析
+dds <- DESeq2::DESeq(dds)
 
 
 #====================================================================

@@ -35,7 +35,7 @@ def outfiles():
     if step == "annotate" or step == "all":
         include: "rules/5.GOandKEGG.smk"
         files.append(expand("result/DEseq/{specie}.KEGG.csv", specie = species))
-
+        files.append(expand("result/DEseq/{specie}.GO.csv", specie = species))
         
     # print(files)
     return files

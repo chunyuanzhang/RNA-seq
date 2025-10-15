@@ -16,13 +16,14 @@ else:
             input: 
                 diffgenes = "result/DEseq/diffgenes.csv"
             output:
-                KEGG = "result/DEseq/{specie}.KEGG.csv"
+                KEGG = "result/DEseq/{specie}.KEGG.csv",
+                GO = "result/DEseq/{specie}.GO.csv"
             params:
                 referenceGtf = lambda wildcards: glob.glob(referenceDir + metainfo_dict_Species_to_Genome.get(wildcards.specie) + "/*.gtf"),
                 emapperannotations = lambda wildcards: glob.glob(referenceDir + metainfo_dict_Species_to_Genome.get(wildcards.specie) + "/*.emapper.annotations")
             shell:
                 """
-                ~/tools/DEseq2/bin/Rscript scripts/anno.R \
+                ~/tools/rstudio/bin/Rscript scripts/anno.R \
                     --infotable {infotable} \
                     --lfc {lfc} \
                     --pval {pval} \

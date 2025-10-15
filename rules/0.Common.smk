@@ -19,6 +19,8 @@ infotable = "infotable.csv"
 untreated = "Chicken"
 lfc = 1
 pval = 0.05
+Orthologgenes = "/home/zhangchunyuan/zhangchunyuan/Orthologgenes/Chicken_vs_Duck.one_to_one.orthologenes.txt"
+
 # infotable文件内容示意，为了代码重复使用方便，infotable不要列
 # 第一列是样本名，第二列是组名，第三列为参考基因组名称【文件夹名称】
 # 若还有其他信息，可以从第四列开始继续添加

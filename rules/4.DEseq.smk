@@ -36,6 +36,6 @@ else:
                     --pval {pval} \
                     --untreated {untreated} \
                     --CountingFiles.isoforms {params.isoforms} \
-                    --orthologgenes result/Ortho_chicken_vs_duck/one_to_one_orthologgenes.txt
+                    --orthologgenes {Orthologgenes}
                 """
 
