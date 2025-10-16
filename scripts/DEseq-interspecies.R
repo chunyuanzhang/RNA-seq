@@ -106,7 +106,6 @@ orthologgenes <- orthologgenes %>% mutate(
 dds_list <- list()
 size_factors_combined <- c()
 merged_raw_counts <- c()
-merged_coldata <- c()
 
 for(s in names(meta_table_list)){
   
@@ -207,7 +206,7 @@ for (t in treated) {
   ggsave(filename = file.path(outdir,filename), plot = p.vol, width = 10, height = 7, create.dir = TRUE)
   
   
-  ### 输出差异分析表格 ==================================
+  ### 输出差异分析总表格 ==================================
   result <- result[order(result$padj),]
   result_dataframe <- as.data.frame(result) %>% 
     tibble::rownames_to_column(var = "genename") %>%
@@ -220,14 +219,13 @@ for (t in treated) {
     ) %>%
   left_join(., orthologgenes, by = "genename")
   
-  write.csv(result_dataframe, file.path(outdir,paste0(pairname, "_DEseq2_results.csv")),
-    quote = F,  row.names = F, )
+  write.csv(result_dataframe, file.path(outdir,paste0(pairname, ".all.csv")),
+    quote = F,  row.names = F)
   
 
-  ### 将差异基因都整理到一个表格中，便于控制输入和输出文件========
-  tmpdata <- result_dataframe %>% filter(Up != "NotSig") %>% mutate(compare = pairname)
-  diffgenes <- rbind(diffgenes,tmpdata )
-  remove(tmpdata)
+  ### 分别将treated 和 untreated 差异高的基因输出到表格中 ========
+  # write.csv( x = result_dataframe %>% filter(Up == untreated ) , file =  file.path(outdir,paste0(pairname, ".", untreated,".csv")), quote = F,  row.names = F)
+  # write.csv( x = result_dataframe %>% filter(Up == t) , file =  file.path(outdir,paste0(pairname, ".", t,".csv")), quote = F,  row.names = F)
   
   
   ### 绘制热图 ==========================================
@@ -239,11 +237,5 @@ for (t in treated) {
   filename <- paste0(pairname, ".Heatmap.pdf")
   ggsave(plot = p.heatmap, filename = file.path(outdir,filename), width = 6, height = 6, create.dir = TRUE )
   
-
 }
-
-
-write.csv(x = diffgenes, file = file.path(outdir, "diffgenes.csv"), 
-             quote = F, row.names = F, )
-
 

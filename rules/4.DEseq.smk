@@ -1,5 +1,26 @@
 
-if interspecies is not True:
+if design == "Species":
+    if pipeline == "onestep":
+        rule DEseq_analysis_interspecies:
+            input:
+                isoforms = expand("result/RSEM/{sample}.isoforms.results", sample = samples)
+            output:
+                PCA = "result/DEseq/PCA.pdf",
+                Volcano = expand("result/DEseq/{pairname}.Volcano.pdf", pairname = pairnames),
+                table = expand("result/DEseq/{pairname}.all.csv", pairname = pairnames)
+            params:
+                isoforms = lambda wildcards, input: ",".join(input.isoforms)
+            shell:
+                """
+                ~/tools/DEseq2/bin/Rscript scripts/DEseq-interspecies.R \
+                    --infotable {infotable} \
+                    --lfc {lfc} \
+                    --pval {pval} \
+                    --untreated {untreated} \
+                    --CountingFiles.isoforms {params.isoforms} \
+                    --orthologgenes {Orthologgenes}
+                """
+else:
     if pipeline == "onestep":
         rule DEseq_analysis:
             input:  
@@ -18,24 +39,5 @@ if interspecies is not True:
                     --CountingFiles.isoforms {params.isoforms} 
                 """
 
-else:
-    if pipeline == "onestep":
-        rule DEseq_analysis_interspecies:
-            input:
-                isoforms = expand("result/RSEM/{sample}.isoforms.results", sample = samples)
-            output:
-                PCA = "result/DEseq/PCA.pdf",
-                diffgenes = "result/DEseq/diffgenes.csv"
-            params:
-                isoforms = lambda wildcards, input: ",".join(input.isoforms)
-            shell:
-                """
-                ~/tools/DEseq2/bin/Rscript scripts/DEseq-interspecies.R \
-                    --infotable {infotable} \
-                    --lfc {lfc} \
-                    --pval {pval} \
-                    --untreated {untreated} \
-                    --CountingFiles.isoforms {params.isoforms} \
-                    --orthologgenes {Orthologgenes}
-                """
+
 

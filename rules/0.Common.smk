@@ -16,6 +16,7 @@ step = "all"
 
 # === 元信息 =========================================
 infotable = "infotable.csv"
+design = "Species"
 untreated = "Chicken"
 lfc = 1
 pval = 0.05
@@ -23,16 +24,21 @@ Orthologgenes = "/home/zhangchunyuan/zhangchunyuan/Orthologgenes/Chicken_vs_Duck
 
 # infotable文件内容示意，为了代码重复使用方便，infotable不要列
 # 第一列是样本名，第二列是组名，第三列为参考基因组名称【文件夹名称】
-# 若还有其他信息，可以从第四列开始继续添加
-# White_1W_F1.sra,White,IASCAAS_PekinDuck_T2T
-# White_1W_F2.sra,White,IASCAAS_PekinDuck_T2T
-# White_1W_F3.sra,White,IASCAAS_PekinDuck_T2T
-# Wild_1W_F1.sra,Wild,IASCAAS_PekinDuck_T2T
-# Wild_1W_F2.sra,Wild,IASCAAS_PekinDuck_T2T
-# Wild_1W_F3.sra,Wild,IASCAAS_PekinDuck_T2T
+# SampleID,GroupID,GenomeName,Species
+# FHSY-C-31,FHSY,IASCAAS_PekinDuck_T2T,Duck
+# FHSY-C-32,FHSY,IASCAAS_PekinDuck_T2T,Duck
+# FHSY-C-33,FHSY,IASCAAS_PekinDuck_T2T,Duck
+# FHSY-C-34,FHSY,IASCAAS_PekinDuck_T2T,Duck
+# FHSY-C-35,FHSY,IASCAAS_PekinDuck_T2T,Duck
+# XSJ-C-31,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken
+# XSJ-C-32,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken
+# XSJ-C-33,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken
+# XSJ-C-34,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken
+# XSJ-C-35,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken
 
-
-# === 指定参考基因组 ==================================
+# === 指定参考基因组所在路径 ===========================
+referenceDir = "/home/zhangchunyuan/zhangchunyuan/reference/"
+### 我们所有的参考基因组都在该路径下，只需要指定参考基因组的名字即可
 
 ## 参考基因组建立索引
 ### 在基因组所在文件夹执行下行命令 双端150bp测序时, --sjdbOverhang 149
@@ -47,41 +53,32 @@ Orthologgenes = "/home/zhangchunyuan/zhangchunyuan/Orthologgenes/Chicken_vs_Duck
 ### gffread -w GCF_047663525.1_IASCAAS_PekinDuck_T2T_transcripts.fna -g GCF_047663525.1_IASCAAS_PekinDuck_T2T_genomic.fna GCF_047663525.1_IASCAAS_PekinDuck_T2T_genomic.gff 
 ### sed 's/>rna-/>/'  GCF_047663525.1_IASCAAS_PekinDuck_T2T_transcripts.fna -i 
 
-# === 指定参考基因组所在路径 ===========================
-referenceDir = "/home/zhangchunyuan/zhangchunyuan/reference/"
-### 我们所有的参考基因组都在该路径下，只需要指定参考基因组的名字即可
 
 # === 外部参数处理 ===================================
 
 if os.path.exists(infotable):
-    metainfo = pd.read_csv(infotable, sep = ",", dtype=str, index_col = False, header=None, skiprows=1)
+    metainfo = pd.read_csv(infotable, sep = ",", dtype=str)
     metainfo.dropna(how='all', inplace=True) # 删除可能存在的空行
-    metainfo.columns = [f'V{i+1}' for i in range(len(metainfo.columns))]
-    metainfo = metainfo[ ~np.array([v.startswith("#") for v in metainfo.V1.to_list()])]  # 删除被#注释掉的行
+    # metainfo.columns = [f'V{i+1}' for i in range(len(metainfo.columns))]
+    metainfo = metainfo[ ~np.array([v.startswith("#") for v in metainfo.SampleID.to_list()])]  # 删除被#注释掉的行
     # metainfo.index = metainfo.V1
-    samples = metainfo.V1.tolist()
-    # 第一列存储样本名称，第二列存储分组名称，第三列存储使用的参考基因组
-    metainfo_dict_Group = dict(zip(metainfo.V1, metainfo.V2)) 
-    metainfo_dict_Genome = dict(zip(metainfo.V1, metainfo.V3)) 
-
-    # infotable不一定有V4、V5这些列，需要进行判断，如果有，则存储到字典中
-    if len(metainfo.columns) > 3:
-        additional_dicts = {}
-        for v in range(3, len(metainfo.columns)):
-            col_name = metainfo.columns[v]
-            dict_name = f"metainfo_dict_{col_name}"
-            additional_dicts[dict_name] = dict(zip(metainfo.V1, metainfo[col_name]))
+    samples = metainfo.SampleID.tolist()
+    # 第一列存储样本名称，第二列存储分组名称，第三列存储使用的参考基因组，第四列指定物种，将所有信息分别存储在字典中，方便随时调用
+    metainfo_dict_Group = dict(zip(metainfo.SampleID, metainfo.GroupID)) 
+    metainfo_dict_Genome = dict(zip(metainfo.SampleID, metainfo.GenomeName)) 
+    metainfo_dict_Species = dict(zip(metainfo.SampleID, metainfo.Species)) 
     
-    # infotable 的第三列是参考基因组，如果参考基因组不相同，那么归一化过程就需要在同一个参考基因组内部进行，归一化后再进行组间的差异比较
-    references = set(metainfo_dict_Genome.values())
-    if len(references) > 1:
-        interspecies = True
-        species = metainfo.V4.drop_duplicates().to_list()
-        print(species)
-        # 第四列存储物种信息
-        metainfo_dict_Species_to_Genome = dict(zip(metainfo.V4, metainfo.V3)) 
-    else:
-        interspecies = False
+    # 为了让我们的代码可以适应多组间比较的情况
+    loops = metainfo[design].values
+    loops = list(set(loops))
+    treated = [x for x in loops if x not in untreated]
+    pairnames = [f"{design}_{t}_vs_{untreated}" for t in treated]
+    # print(pairnames)
+    
+    # 如果在物种间进行比较，需要把物种和参考基因组去冗余，便于控制命令重复次
+    if design == "Species":
+        metainfo_dict_Species_to_Genome = dict(zip(metainfo.Species, metainfo.GenomeName)) 
+        
 
 
     # 设置wildcard约束
@@ -89,5 +86,5 @@ if os.path.exists(infotable):
         samples = "|".join(samples)
     
 
-
+    
 

@@ -31,11 +31,13 @@ def outfiles():
     if step == "deseq" or step == "all":
         include: "rules/4.DEseq.smk"
         files.append("result/DEseq/PCA.pdf")
-        files.append("result/DEseq/diffgenes.csv")
+        files.append(expand("result/DEseq/{pairname}.all.csv", pairname = pairnames))
+        files.append(expand("result/DEseq/{pairname}.Volcano.pdf", pairname = pairnames))
     if step == "annotate" or step == "all":
         include: "rules/5.GOandKEGG.smk"
-        files.append(expand("result/DEseq/{specie}.KEGG.csv", specie = species))
-        files.append(expand("result/DEseq/{specie}.GO.csv", specie = species))
+        files.append(expand("result/DEseq/{pairname}.{loop}.KEGG.csv",pairname = pairnames, loop = loops))
+        files.append(expand("result/DEseq/{pairname}.{loop}.GO.csv", pairname = pairnames, loop = loops))
+        
         
     # print(files)
     return files
