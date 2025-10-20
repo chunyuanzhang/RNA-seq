@@ -155,14 +155,14 @@ dev.off()
 
 ### PCA图 - 样本按预期分组
 vsd <- vst(dds, blind = FALSE)
-p.PCA <- plotPCA(vsd, intgroup = "Species")
+p.PCA <- plotPCA(vsd, intgroup = design)
 ggsave(filename = file.path(outdir, "PCA.pdf"), plot = p.PCA, width = 6, height = 5)
 
 ### 样本热图，看组内相关性
 library(pheatmap)
 cor_matrix <- cor(assay(vsd))
 pdf(file = file.path(outdir, "cor_samples.pdf"), width = 6, height = 5)
-pheatmap(cor_matrix, annotation_col = as.data.frame(colData(dds)["Species"]))
+pheatmap(cor_matrix, annotation_col = as.data.frame(colData(dds)[design]))
 dev.off()
 
 ### 输出Disp图
@@ -184,9 +184,18 @@ for (t in treated) {
   pairname <- paste0(design, "_", t, "_vs_", untreated)
   result <- DESeq2::results(dds, name = pairname)
   
+  ### 当样本量偏少时，需要对差异分析的结果进行缩放，以便于在火山图中展示差异基因
+  ### 注意：lfcShrink缩放并不改变差异基因列表
+  if(max(table(meta_table$GroupID)) < 20){
+    result_for_Volcano <- lfcShrink(dds, coef = pairname, type = "apeglm")
+  }else{
+    result_for_Volcano <- result
+  }
+  
+
   ###绘制火山图 ========================================
-  p.vol <- EnhancedVolcano::EnhancedVolcano(result,
-                                            lab = rownames(result),
+  p.vol <- EnhancedVolcano::EnhancedVolcano(result_for_Volcano,
+                                            lab = rownames(result_for_Volcano),
                                             x = 'log2FoldChange',
                                             y = 'padj',
                                             title = pairname,
