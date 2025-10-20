@@ -84,7 +84,6 @@ if os.path.exists(infotable):
         # 物种间差异分析需要提供1:1的同源基因
         Orthologgenes = config["Orthologgenes"]
 
-
     # 设置wildcard约束
     wildcard_constraints:
         samples = "|".join(samples)

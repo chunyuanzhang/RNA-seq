@@ -1,6 +1,6 @@
 
 if pipeline == "onestep":
-    rule DEseq_analysis_interspecies:
+    rule DEseq_analysis:
         input:
             isoforms = expand("result/RSEM/{sample}.isoforms.results", sample = samples)
         output:
@@ -8,16 +8,18 @@ if pipeline == "onestep":
             Volcano = expand("result/DEseq/{pairname}.Volcano.pdf", pairname = pairnames),
             diffgenes = expand("result/DEseq/{pairname}.all.csv", pairname = pairnames)
         params:
-            isoforms = lambda wildcards, input: ",".join(input.isoforms)
+            isoforms = lambda wildcards, input: ",".join(input.isoforms),
+            Orthologgenes = lambda wildcards: globals().get('Orthologgenes', 'None')
         shell:
             """
-            ~/tools/DEseq2/bin/Rscript scripts/DEseq-interspecies.R \
+            ~/tools/DEseq2/bin/Rscript scripts/DEseq.R \
                 --infotable {infotable} \
                 --lfc {lfc} \
                 --pval {pval} \
+                --design {design} \
                 --untreated {untreated} \
                 --CountingFiles.isoforms {params.isoforms} \
-                --orthologgenes {Orthologgenes}
+                --orthologgenes {params.Orthologgenes}
             """
 
 
