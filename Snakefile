@@ -35,11 +35,9 @@ def outfiles():
         files.append(expand("result/DEseq/{pairname}.Volcano.pdf", pairname = pairnames))
     if step == "annotate" or step == "all":
         include: "rules/5.GOandKEGG.smk"
-        files.append(expand("result/DEseq/{pairname}.{loop}.KEGG.csv",pairname = pairnames, loop = loops))
-        files.append(expand("result/DEseq/{pairname}.{loop}.GO.csv", pairname = pairnames, loop = loops))
+        files.append(gokegg_outputs)
         
-        
-    # print(files)
+    #print(files)
     return files
 
 

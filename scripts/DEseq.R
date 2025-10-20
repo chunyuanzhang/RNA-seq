@@ -29,7 +29,7 @@ design <- args$design
 
 if(design == "Species"){
   orthologgenes <- args$orthologgenes
-  cat("与种内差异不同的是，中间差异需要先提取1:1同源的基因列表，再进行标准话，随后进行差异分析")
+  cat("与种内差异不同的是，中间差异需要先提取1:1同源的基因列表，再进行标准话，随后进行差异分析\n")
 }
 
 untreated <- args$untreated
@@ -58,6 +58,7 @@ meta_table <- read.table(infotable, sep = ",", header = T)
 rownames(meta_table) <- meta_table$SampleID
 treated <- setdiff(meta_table[[design]] %>% as.vector() %>% unique(), untreated)
 
+
 #################
 #################
 
@@ -67,17 +68,17 @@ if(design == "Species"){
   # 读取1:1的同源基因，并给名称不同的同源基因重命名，用于后续提取基因
   #====================================================================
 
+  meta_table_list <- split(x = meta_table, f = ~Species)
+  species <- names(meta_table_list)
+
   orthologgenes <- read.delim(file = orthologgenes)
   orthologgenes <- orthologgenes %>% mutate(
     genename =  ifelse(!!as.name(species[1]) == !!as.name(species[2]),!!as.name(species[1])  ,  paste0(!!as.name(species[1]), "_vs_", !!as.name(species[2])))
   ) 
-
+  
   #====================================================================
   # 1、先在种内分别归一化、然后提取同源基因的子集、再归一化、差异分析
   #====================================================================
-
-  meta_table_list <- split(x = meta_table, f = ~Species)
-  species <- names(meta_table_list)
 
   dds_list <- list()
   size_factors_combined <- c()
@@ -126,17 +127,17 @@ if(design == "Species"){
 
 } else {
 
-tx2gene <- read.delim(file = CountingFiles.isoforms[1], header = T) %>% dplyr::select(transcript_id, gene_id)
-counts.genes <- tximport::tximport(files = as.character(CountingFiles.isoforms), type = CountingMethod, tx2gene = tx2gene )
+  tx2gene <- read.delim(file = CountingFiles.isoforms[1], header = T) %>% dplyr::select(transcript_id, gene_id)
+  counts.genes <- tximport::tximport(files = as.character(CountingFiles.isoforms), type = CountingMethod, tx2gene = tx2gene )
 
-###创建DESeq2对象 
-design_formula <- as.formula(paste("~", design))
-dds <- DESeq2::DESeqDataSetFromTximport(counts.genes, colData = meta_table, design = design_formula )
-# 不指定的话会根据字符顺序比较
-dds[[design]] <- relevel(dds[[design]], ref = untreated)
+  ###创建DESeq2对象 
+  design_formula <- as.formula(paste("~", design))
+  dds <- DESeq2::DESeqDataSetFromTximport(counts.genes, colData = meta_table, design = design_formula )
+  # 不指定的话会根据字符顺序比较
+  dds[[design]] <- relevel(dds[[design]], ref = untreated)
 
-# 运行DESeq2
-dds <- DESeq2::DESeq(dds)  # 这一步自动进行了标准化
+  # 运行DESeq2
+  dds <- DESeq2::DESeq(dds)  # 这一步自动进行了标准化
 
 }
 

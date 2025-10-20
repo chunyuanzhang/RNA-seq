@@ -61,33 +61,86 @@ referenceDir = config["referenceDir"]
 if os.path.exists(infotable):
     metainfo = pd.read_csv(infotable, sep = ",", dtype=str)
     metainfo.dropna(how='all', inplace=True) # 删除可能存在的空行
-    # metainfo.columns = [f'V{i+1}' for i in range(len(metainfo.columns))]
     metainfo = metainfo[ ~np.array([v.startswith("#") for v in metainfo.SampleID.to_list()])]  # 删除被#注释掉的行
-    # metainfo.index = metainfo.V1
+
+    # 验证 design 列是否存在
+    if design not in metainfo.columns:
+        raise ValueError(f"Design column '{design}' not found in {infotable}. Available columns: {metainfo.columns.tolist()}")
+
     samples = metainfo.SampleID.tolist()
-    # 第一列存储样本名称，第二列存储分组名称，第三列存储使用的参考基因组，第四列指定物种，将所有信息分别存储在字典中，方便随时调用
+    
     metainfo_dict_Group = dict(zip(metainfo.SampleID, metainfo.GroupID)) 
     metainfo_dict_Genome = dict(zip(metainfo.SampleID, metainfo.GenomeName)) 
     metainfo_dict_Species = dict(zip(metainfo.SampleID, metainfo.Species)) 
-    
-    # 为了让我们的代码可以适应多组间比较的情况
-    loops = metainfo[design].values
-    loops = list(set(loops))
-    treated = [x for x in loops if x not in untreated]
+    # metainfo_dict_Species_to_Genome = dict(zip(metainfo.Species, metainfo.GenomeName)) 
+    metainfo_dict_Design_to_Genome = dict(zip(metainfo[design], metainfo.GenomeName))
+
+    # === 成对比较逻辑（根据 design 列进行分组）==========
+    all_design_values = metainfo[design].unique().tolist()
+
+    treated = [x for x in all_design_values if x != untreated]
     pairnames = [f"{design}_{t}_vs_{untreated}" for t in treated]
-    # print(pairnames)
     
+    # 为每个 pairname 定义其包含的两个分组
+    pairname_groups = {}
+    for t in treated:
+        pairname = f"{design}_{t}_vs_{untreated}"
+        pairname_groups[pairname] = [t, untreated]
+
+    # 生成用于 expand 的组合列表
+    gokegg_outputs = []
+    for pairname in pairnames:
+        for group in pairname_groups[pairname]:
+            gokegg_outputs.append(f"result/DEseq/{pairname}.{group}.KEGG.csv")
+            gokegg_outputs.append(f"result/DEseq/{pairname}.{group}.GO.csv")
+
+    #print(gokegg_outputs)
+
     # 如果在物种间进行比较，需要把物种和参考基因组去冗余，便于控制命令重复次
     if design == "Species":
-        # 将物种和参考基因组的对应关系放在字典中
-        metainfo_dict_Species_to_Genome = dict(zip(metainfo.Species, metainfo.GenomeName)) 
         # 物种间差异分析需要提供1:1的同源基因
         Orthologgenes = config["Orthologgenes"]
 
     # 设置wildcard约束
     wildcard_constraints:
         samples = "|".join(samples)
-    
 
-    
+
+else:
+    raise FileNotFoundError(f"Infotable file not found: {infotable}")
+
+
+# === 辅助函数 =========================================
+
+def get_gtf_by_design_value(wildcards):
+    """
+    根据 design 列的值（可能是 GroupID 或 Species）获取对应的 GTF 文件
+    wildcards.loop 的值来自 design 列
+    """
+    genome = metainfo_dict_Design_to_Genome.get(wildcards.loop)
+    gtf_files = glob.glob(f"{referenceDir}{genome}/*.gtf")
+    if not gtf_files:
+        raise FileNotFoundError(f"No GTF file found in {referenceDir}{genome}/")
+    return gtf_files[0]
+
+
+def get_emapper_by_design_value(wildcards):
+    """
+    根据 design 列的值（可能是 GroupID 或 Species）获取对应的 emapper.annotations 文件
+    """
+    genome = metainfo_dict_Design_to_Genome.get(wildcards.loop)
+    emapper_files = glob.glob(f"{referenceDir}{genome}/*.emapper.annotations")
+    if not emapper_files:
+        raise FileNotFoundError(f"No emapper.annotations file found in {referenceDir}{genome}/")
+    return emapper_files[0]
+
+def get_genome_gtf(wildcards):
+    """根据样本获取对应的基因组 GTF 文件"""
+    genome = metainfo_dict_Genome.get(wildcards.sample)
+    gtf_files = glob.glob(f"{referenceDir}{genome}/*.gtf")
+    if not gtf_files:
+        raise FileNotFoundError(f"No GTF file found in {referenceDir}{genome}/")
+    return gtf_files[0]
+
+
 
