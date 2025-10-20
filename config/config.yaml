@@ -1,0 +1,23 @@
+# ====  一步法 ============================
+pipeline: "onestep"
+
+# ==== 指定元信息 ==========================
+infotable: "config/infotable.csv"
+
+# ==== 指定分析步骤 ========================
+step: "all"
+
+# ==== 指定差异分析的参数 ===================
+design: "Species"
+untreated: "Chicken"
+lfc: 1
+pval: 0.05
+
+# ==== 指定参考基因组的路径 ==================
+referenceDir: "/home/zhangchunyuan/zhangchunyuan/reference/"
+
+
+# ==== 指定同源基因 ========================
+Orthologgenes: "/home/zhangchunyuan/zhangchunyuan/Orthologgenes/Chicken_vs_Duck.one_to_one.orthologenes.txt"
+
+

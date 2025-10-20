@@ -6,23 +6,25 @@ import json
 import os
 import glob
 
+### load config file======================================================================================================
+configfile: "config/config.yaml"
 
 # === 工具或分析流程选择 ===============================
-pipeline = "onestep" # 使用rsem工具一步完成比对和统计
+ # 使用rsem工具一步完成比对和统计
+pipeline = config["pipeline"]
 
 # === 指定分析步骤 ====================================
-step = "all"
-
+step = config["step"]
 
 # === 元信息 =========================================
-infotable = "infotable.csv"
-design = "Species"
-untreated = "Chicken"
-lfc = 1
-pval = 0.05
-Orthologgenes = "/home/zhangchunyuan/zhangchunyuan/Orthologgenes/Chicken_vs_Duck.one_to_one.orthologenes.txt"
+infotable = config["infotable"]
+design = config["design"]
+untreated = config["untreated"]
+lfc = config["lfc"]
+pval = config["pval"]
 
-# infotable文件内容示意，为了代码重复使用方便，infotable不要列
+
+# infotable文件内容示意，列名是固定的，不可更改
 # 第一列是样本名，第二列是组名，第三列为参考基因组名称【文件夹名称】
 # SampleID,GroupID,GenomeName,Species
 # FHSY-C-31,FHSY,IASCAAS_PekinDuck_T2T,Duck
@@ -37,7 +39,7 @@ Orthologgenes = "/home/zhangchunyuan/zhangchunyuan/Orthologgenes/Chicken_vs_Duck
 # XSJ-C-35,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken
 
 # === 指定参考基因组所在路径 ===========================
-referenceDir = "/home/zhangchunyuan/zhangchunyuan/reference/"
+referenceDir = config["referenceDir"]
 ### 我们所有的参考基因组都在该路径下，只需要指定参考基因组的名字即可
 
 ## 参考基因组建立索引
@@ -77,8 +79,10 @@ if os.path.exists(infotable):
     
     # 如果在物种间进行比较，需要把物种和参考基因组去冗余，便于控制命令重复次
     if design == "Species":
+        # 将物种和参考基因组的对应关系放在字典中
         metainfo_dict_Species_to_Genome = dict(zip(metainfo.Species, metainfo.GenomeName)) 
-        
+        # 物种间差异分析需要提供1:1的同源基因
+        Orthologgenes = config["Orthologgenes"]
 
 
     # 设置wildcard约束

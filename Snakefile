@@ -47,33 +47,3 @@ rule all:
     input:
         outfiles()
 
-
-
-#################
-# Quantification
-#################
-
-
-# rule create_salmon_sample_file:
-#     input:
-#         count = expand("result/STAR/{sample}/{sample}.salmon_quant/quant.sf", sample = samples)
-#     output:
-#         file = "samples.txt"
-#     run:
-#         with open(output.file, "w") as f:
-#             for s in samples:
-#                 f.write(s + "\t" + "result/STAR/" + s + "/" + s + ".salmon_quant/quant.sf" + "\t" + metainfo_dict[s] + "\n")
-
-
-# rule DEseq2:
-#     input:
-#         count = expand("result/STAR/{sample}/{sample}.salmon_quant/quant.sf", sample = samples)
-#     output:
-#         PCA = "PCA.pdf"
-#     run:
-#         mappedfiles = ','.join(input.count)
-#         cmd = (f"~/tools/DEseq2/bin/Rscript RNA-seq.R --metafile {infotable} --lfc {lfc} --pval {pval} --gtf {ref_gtf} --untreated {untreated} --mappedfiles {mappedfiles}")
-#         print(cmd)
-#         os.system(cmd)
-
-

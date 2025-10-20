@@ -26,13 +26,25 @@ https://bioconductor.org/packages/devel/bioc/vignettes/EnhancedVolcano/inst/doc/
 
 
 
+# 种内和种间的差异分析
+因 DEseq2 通过 design 设置差异比较分组，因此我们通过设置 design 来控制比较组
+
+infotable.csv中包含Species列，如果 design 选择了 Species，流程就会进入物种间的分析，否则就是在种内分析
 
 ## 种内的 RNA-seq 分析
-
+- RSEM统计表达量
+- 导入到DESeq中，按照默认参数进行差异分析
 
 
 ## 跨物种的 RNA-seq 分析
 
+目前的思路：
+- 种内标准化【通过分别计算 effecter size 实现种内标准化】
+- 提取1:1的基因【】
+- 差异分析
+- KEGG和GO注释
+    - 使用差异的1:1同源基因作为感兴趣的基因
+    - 使用所有表达的1:1同源基因作为背景基因【是否有必要更换为所有表达的基因，而不局限在同源基因？】
 
 
 目前已经完成使用自定义的KEGG注释流程，还需要增加GO注释

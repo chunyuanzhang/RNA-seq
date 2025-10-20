@@ -2,7 +2,7 @@ if design == "Species":
     if pipeline == "onestep":
         rule GOandKEGG_interspecies:
             input: 
-                diffgenes = "result/DEseq/{pairname}.all.csv",
+                diffgenes = "result/DEseq/{pairname}.all.csv"
             output:
                 KEGG = "result/DEseq/{pairname}.{loop}.KEGG.csv",
                 GO = "result/DEseq/{pairname}.{loop}.GO.csv"
@@ -19,14 +19,14 @@ if design == "Species":
                     --pval {pval} \
                     --emapperannotations {params.emapperannotations}
                 """
-
 else:
     if pipeline == "onestep":
         rule GOandKEGG:
             input:
-                diffgenes = "result/DEseq/diffgenes.csv"
+                diffgenes = "result/DEseq/{pairname}.all.csv"
             output:
-                "test.done"
+                KEGG = "result/DEseq/{pairname}.{loop}.KEGG.csv",
+                GO = "result/DEseq/{pairname}.{loop}.GO.csv"
             shell:
                 """
                 ~/tools/DEseq2/bin/Rscript scripts/anno.R \
