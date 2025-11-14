@@ -10,8 +10,11 @@ rule rsem_mapping_and_counting:
         96
     params:
         rsem_reference = lambda wildcards:  referenceDir + metainfo_dict_Genome[wildcards.sample] + "/RSEMindex/" + metainfo_dict_Genome[wildcards.sample] 
+    log:
+        "logs/rsem_mapping_and_counting/{sample}.log"
     shell:
         """
+        {STAR}
          ~/tools/rsem/bin/rsem-calculate-expression \
             -p {threads} \
             --paired-end \
@@ -21,7 +24,7 @@ rule rsem_mapping_and_counting:
             --append-names \
             {input.cleandata_1} {input.cleandata_2} \
             {params.rsem_reference} \
-            result/RSEM/{wildcards.sample}
+            result/RSEM/{wildcards.sample} 2>{log}
         """
 
 # 对比对质量进行评估
@@ -35,7 +38,10 @@ rule qualimap_bamQC_report1:
         referenceGtf = lambda wildcards: glob.glob(referenceDir + metainfo_dict_Genome[wildcards.sample] + "/*.gtf" )
     threads:
         32
+    log:
+        "logs/qualimap_bamQC_report1/{sample}.log"
     shell:
         """
-        qualimap bamqc -bam {input.bam1} -gff {params.referenceGtf} -outdir {params.outdir} --java-mem-size=16G -nt {threads} 
+        {qualimap}
+        qualimap bamqc -bam {input.bam1} -gff {params.referenceGtf} -outdir {params.outdir} --java-mem-size=16G -nt {threads} 2>{log}
         """

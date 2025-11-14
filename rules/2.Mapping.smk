@@ -12,8 +12,11 @@ rule map_reads_to_reference:
         genomeDir =  lambda wildcards:  referenceDir + metainfo_dict_Genome[wildcards.sample] + "/STARindex"
     threads:
         100
+    log:
+        "logs/map_reads_to_reference/{sample}.log"
     shell:
         """
+        {STAR}
         STAR --genomeDir {params.genomeDir} \
             --outSAMunmapped Within \
             --outFilterType BySJout \
@@ -34,7 +37,7 @@ rule map_reads_to_reference:
             --outSAMheaderHD @HD VN:1.4 SO:unsorted \
             --outFileNamePrefix {params.prefix} \
             --readFilesCommand zcat \
-            --readFilesIn {input.cleandata_1} {input.cleandata_2}
+            --readFilesIn {input.cleandata_1} {input.cleandata_2} 2>{log}
         """
 
 # 对比对质量进行评估

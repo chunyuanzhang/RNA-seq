@@ -9,6 +9,8 @@ rule GOandKEGG:
         referenceGtf = get_gtf_by_design_value,
         emapperannotations = get_emapper_by_design_value,
         pval = pval
+    log:
+        "logs/GOandKEGG/{pairname}.{loop}.log"
     shell:
         """
         ~/tools/rstudio/bin/Rscript scripts/anno.R \
@@ -17,5 +19,5 @@ rule GOandKEGG:
             --diffgenes {input.diffgenes} \
             --backgroundgenes {input.diffgenes} \
             --pval {params.pval} \
-            --emapperannotations {params.emapperannotations}
+            --emapperannotations {params.emapperannotations} 2>{log}
         """

@@ -24,6 +24,8 @@ rule rsem_count:
         64
     params:
         prefix = "result/RSEM/{sample}"
+    log:
+        "logs/rsem_count/{sample}.log"
     shell:
         """
         ~/tools/rsem/bin/rsem-calculate-expression --alignments  --paired-end \
@@ -31,7 +33,7 @@ rule rsem_count:
             -p {threads} \
             {input.bam} \
             ~/zhangchunyuan/reference/IASCAAS_PekinDuck_T2T/RSEMindex/IASCAAS_PekinDuck_T2T \
-            {params.prefix}
+            {params.prefix} 2>{log}
         """
 
 

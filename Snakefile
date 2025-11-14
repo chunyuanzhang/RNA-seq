@@ -31,6 +31,7 @@ def outfiles():
     if step == "deseq" or step == "all":
         include: "rules/4.DEseq.smk"
         files.append("result/DEseq/PCA.pdf")
+        files.append("result/DEseq/dds.rds")
         files.append(expand("result/DEseq/{pairname}.all.csv", pairname = pairnames))
         files.append(expand("result/DEseq/{pairname}.Volcano.pdf", pairname = pairnames))
     if step == "annotate" or step == "all":

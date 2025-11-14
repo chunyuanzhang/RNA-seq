@@ -21,3 +21,13 @@ referenceDir: "/home/zhangchunyuan/zhangchunyuan/reference/"
 Orthologgenes: "/home/zhangchunyuan/zhangchunyuan/Orthologgenes/Chicken_vs_Duck.one_to_one.orthologenes.txt"
 
 
+tools:
+    fastp: module load fastp/0.23.2 
+    gatk64: module load gatk/4.6.2.0
+    bwa: module load BWA/0.7.19-r1273
+    samtools: module load samtools/1.13 
+    bcftools: module load bcftools/1.22-40-gf79d6307
+    fastqc: module load fastqc/v0.12.1
+    multiqc: module load multiqc/1.0.dev0
+    STAR: module load STAR/2.7.10b
+    qualimap: module load qualimap/v.2.2.2-dev

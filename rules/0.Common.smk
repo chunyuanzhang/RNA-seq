@@ -144,3 +144,14 @@ def get_genome_gtf(wildcards):
 
 
 
+### tools ================================================================================================================
+fastqc = config["tools"]["fastqc"]
+multiqc = config["tools"]["multiqc"]
+fastp = config["tools"]["fastp"]
+gatk64 = config["tools"]["gatk64"]
+bwa = config["tools"]["bwa"]
+samtools = config["tools"]["samtools"]
+bcftools = config["tools"]["bcftools"]
+STAR = config["tools"]["STAR"]
+
+
