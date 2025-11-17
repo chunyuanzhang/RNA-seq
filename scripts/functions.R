@@ -18,6 +18,25 @@ get_Protein2Gene <- function(GTF){
 }
 
 
+
+# 提取 eggNOG-mapper 比对数据到内存，方便后续从中提取数据
+
+get_eggNOGmapperData <- function(emapperannotations){
+  
+  emapperannotations <- emapperannotations # gtf比对后从网站上下载的结果
+  
+  header <- readLines(emapperannotations, n = 5)
+  header <- header[5] %>% gsub("#", "", .) %>% strsplit(split = "\t") %>% unlist()
+  emapperannotations_data <- read.delim(emapperannotations, comment.char = '#', header = F)
+  colnames(emapperannotations_data) <- header
+  remove(header)
+  
+  return(emapperannotations_data)
+  
+}
+
+
+
 # 由emapper 的注释文件中提取 KO 和 gene 的对应关系 =============================
 
 get_KO2Gene <- function(emapperannotations_data, gene_to_protein){
@@ -55,6 +74,8 @@ get_GOterm2Gene <- function(emapperannotations_data, gene_to_protein){
     tidyr::drop_na() %>% 
     dplyr::rename("protein_id" = "query") %>%
     merge(., gene_to_protein, by = "protein_id") %>%
+    dplyr::select(-protein_id) %>%
+    unique() %>%
     dplyr::rename("term" = "GOs", "gene" = "gene_id") %>%
     unique() 
   
