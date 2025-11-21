@@ -1,4 +1,32 @@
 
+################################################################################
+# 拆分用_vs_ 链接的同源基因
+################################################################################
+
+extract_gene_from_gene_vs_gene_pair <- function(genes, side){
+  
+  genes <- genes
+  side <- side
+  
+  sapply(genes, function(gene) {
+    if (grepl("_vs_", gene)) {
+      # 如果包含 _vs_，则拆分
+      parts <- strsplit(gene, "_vs_")[[1]]
+      if (side == 1) {
+        return(parts[1])
+      } else if (side == 2) {
+        return(parts[2])
+      } else {
+        stop("side 只能是 1 或 2, 1 表示提取左边的基因，2 表示提取右边的基因")
+      }
+    } else {
+      # 如果不包含 _vs_，直接返回
+      return(gene)
+    }
+  }, USE.NAMES = FALSE)
+  
+
+}
 
 
 ################################################################################
@@ -10,13 +38,14 @@
 get_Protein2Gene <- function(GTF){
   GTF <- GTF
   
+  cat("从GTF中提取蛋白和基因的对应关系\n")
+
   # 由于emapperannotations_data的注释信息是由蛋白质比对得到的，因此我们需要从蛋白质对应到基因
-  
+  GTF <- rtracklayer::import(GTF) %>% as.data.frame()
   gene_to_protein_mapping <- GTF %>% dplyr::select(gene_id, protein_id) %>% filter(!is.na(protein_id)) %>% unique() 
   
   return(gene_to_protein_mapping)
 }
-
 
 
 # 提取 eggNOG-mapper 比对数据到内存，方便后续从中提取数据
@@ -41,6 +70,8 @@ get_eggNOGmapperData <- function(emapperannotations){
 
 get_KO2Gene <- function(emapperannotations_data, gene_to_protein){
   
+  cat("将基因映射为 KO id\n")
+
   emapperannotations_data <- emapperannotations_data
   gene_to_protein <- gene_to_protein
   
@@ -63,6 +94,8 @@ get_KO2Gene <- function(emapperannotations_data, gene_to_protein){
 
 get_GOterm2Gene <- function(emapperannotations_data, gene_to_protein){
   
+  cat("将基因映射为 GO term\n")
+
   emapperannotations_data <- emapperannotations_data
   gene_to_protein<- gene_to_protein
   # GO 注释时
@@ -83,12 +116,110 @@ get_GOterm2Gene <- function(emapperannotations_data, gene_to_protein){
   
 }
 
+# 输入目标差异基因、背景基因、GTF文件和emapperannotations文件，直接得到GO注释结果==
+
+GO_enrichment <- function(diffgenes, backgroundgenes, GTF, emapperannotations){
+ 
+  cat("执行GO 注释 \n")
+
+  GTF <- GTF
+  emapperannotations <- emapperannotations
+  diffgenes <- diffgenes
+  backgroundgenes <- backgroundgenes
+  
+  #############
+  
+  gene_to_protein_mapping <- get_Protein2Gene(GTF = GTF)
+  emapperannotations_data <- get_eggNOGmapperData(emapperannotations = emapperannotations)
+  
+  eggNOG_goterm2gene <- get_GOterm2Gene(emapperannotations_data = emapperannotations_data, gene_to_protein = gene_to_protein_mapping)
+  
+  goterm2name <- AnnotationDbi::select(GO.db::GO.db, keys=unique(eggNOG_goterm2gene$term), 
+                                       columns=c("GOID", "TERM"), 
+                                       keytype="GOID") 
+  colnames(goterm2name) <- c("term", "name")
+  
+  cat("\tenricher\n")
+  enrichment_GO <- clusterProfiler::enricher(gene = diffgenes, 
+                                             TERM2GENE = eggNOG_goterm2gene,
+                                             TERM2NAME = goterm2name,
+                                             pvalueCutoff = 0.05, 
+                                             qvalueCutoff = 0.05,
+                                             pAdjustMethod = "BH",
+                                             universe = backgroundgenes,
+  )
+  
+  enrichment_GO@result <- enrichment_GO@result %>%
+    left_join(
+      AnnotationDbi::select(GO.db::GO.db,
+             keys = .$ID,
+             columns = c("GOID", "ONTOLOGY"),
+             keytype = "GOID"),
+      by = c("ID" = "GOID")
+    )
+  
+  return(enrichment_GO)
+}
 
 
+# 输入目标差异基因、背景基因、GTF文件和emapperannotations文件，直接得到KEGG注释结果=
 
+KEGG_enrichment <- function(diffgenes, backgroundgenes, GTF, emapperannotations){
+  
+  cat("执行KEGG注释\n")
 
+  options(timeout = 300) # 增加时长，避免因网速不够导致的错误推出
 
+  diffgenes <- diffgenes
+  backgroundgenes <- backgroundgenes
+  GTF <- GTF
+  emapperannotations <- emapperannotations
+  
+  gene_to_protein_mapping <- get_Protein2Gene(GTF = GTF)
+  emapperannotations_data <- get_eggNOGmapperData(emapperannotations = emapperannotations)
+  
+  eggNOG_kegg2gene <- get_KO2Gene(emapperannotations_data = emapperannotations_data, gene_to_protein = gene_to_protein_mapping)
+   
+  diffgenes2kegg <- eggNOG_kegg2gene %>% dplyr::filter(gene_id %in% diffgenes) %>% pull(KEGG_ko) 
+  backgroundgenes2kegg <- eggNOG_kegg2gene %>%  dplyr::filter(gene_id %in% backgroundgenes) %>% pull(KEGG_ko) 
+ 
+  cat("\tenricherKEGG\n")
+  enrichment_kegg <- clusterProfiler::enrichKEGG(diffgenes2kegg,
+                                organism = "ko",
+                                keyType = "kegg",
+                                pvalueCutoff = 0.05,
+                                qvalueCutoff = 0.05,
+                                pAdjustMethod = "BH",
+                                universe = backgroundgenes2kegg,
+                                use_internal_data = FALSE)
+  
+  enrichment_kegg@result <- enrichment_kegg@result %>%
+    rowwise() %>%
+    mutate(
+      # 添加 gene_ids
+      gene_ids = {
+        genekeggs <- strsplit(geneID, "/")[[1]]
+        gene_ids <- eggNOG_kegg2gene[eggNOG_kegg2gene$KEGG_ko %in% genekeggs, ]$gene_id %>% 
+          unique()
+        gene_ids[gene_ids %in% diffgenes] %>% 
+          paste0(collapse = "/")
+      },
+      # 添加 CLASS
+      CLASS = {
+        tryCatch({
+          keggfile <- KEGGREST::keggGet(ID)
+          CLASS <- keggfile[[1]]$CLASS
+          if(is.null(CLASS)) NA_character_ else CLASS
+        }, error = function(e) NA_character_)
+      }
+    ) %>%
+    ungroup() %>%
+    # 拆分 CLASS 为 L1 和 L2
+    tidyr::separate(CLASS, into = c("L1", "L2"), sep = "; ", remove = FALSE, fill = "right")
+  
+   return(enrichment_kegg)
 
+}
 
 
 ################################################################################
