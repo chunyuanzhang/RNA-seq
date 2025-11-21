@@ -221,6 +221,21 @@ KEGG_enrichment <- function(diffgenes, backgroundgenes, GTF, emapperannotations)
 
 }
 
+# 绘制点图
+
+anno_plot <- function(object, title){
+  
+  object <- object
+  title <- title
+  
+  p <- enrichplot::dotplot(object, showCategory=20, font.size=10, label_format=70) + 
+    scale_size_continuous(range = c(1,7)) + 
+    theme_minimal() + 
+    ggtitle(title)
+  
+  return(p)
+  
+}
 
 ################################################################################
 # WGCNA
@@ -230,54 +245,81 @@ KEGG_enrichment <- function(diffgenes, backgroundgenes, GTF, emapperannotations)
 # 从 dds 文件开始，准备 WGCNA 分析的输入数据 ===================================
 
 
-prepare_data_for_wgcna <- function(dds, min_count = 10, min_samples = 0.1) {
+# prepare_data_for_wgcna <- function(dds, min_count = 10, min_samples = 0.1) {
+  
+#   dds <- dds
+#   min_count <- min_count
+#   min_samples <- min_samples
+  
+  
+#   # 获取标准化的表达数据
+#   # 使用rlog或vst转换以获得同方差稳定的数据
+#   if (ncol(dds) < 30) {
+#     expr_data <- rlog(dds, blind = FALSE)
+#     cat("样本数 < 30，使用rlog转换\n")
+#   } else {
+#     expr_data <- vst(dds, blind = FALSE)
+#     cat("样本数 >= 30，使用VST转换\n")
+#   }
+  
+#   # 提取表达矩阵
+#   expr_matrix <- assay(expr_data)
+  
+#   # 过滤低表达基因
+#   # 保留在至少10%样本中表达量 > min_count的基因
+#   min_samples_count <- ceiling(ncol(expr_matrix) * min_samples)
+#   keep_genes <- rowSums(expr_matrix > min_count) >= min_samples_count
+#   expr_matrix <- expr_matrix[keep_genes, ]
+  
+#   cat(sprintf("过滤后保留 %d 个基因\n", nrow(expr_matrix)))
+  
+#   # 转置矩阵（WGCNA需要样本为行，基因为列）
+#   datExpr <- t(expr_matrix)
+  
+#   # 检查数据质量
+#   gsg <- goodSamplesGenes(datExpr, verbose = 3)
+#   if (!gsg$allOK) {
+#     if (sum(!gsg$goodGenes) > 0) {
+#       cat(sprintf("移除 %d 个质量不佳的基因\n", sum(!gsg$goodGenes)))
+#     }
+#     if (sum(!gsg$goodSamples) > 0) {
+#       cat(sprintf("移除 %d 个质量不佳的样本\n", sum(!gsg$goodSamples)))
+#     }
+#     datExpr <- datExpr[gsg$goodSamples, gsg$goodGenes]
+#   }
+  
+#   return(list(
+#     datExpr = datExpr,
+#     sample_info = colData(dds)[rownames(datExpr), ],
+#     original_dds = dds
+#   ))
+# }
+
+prepare_data_for_wgcna <- function(dds, quantile, min_count = 10, min_samples = 0.1 ) {
   
   dds <- dds
+  quantile <- quantile
   min_count <- min_count
   min_samples <- min_samples
   
+  ### vsd处理数据
+  vsd_data <- DESeq2::getVarianceStabilizedData(dds)
   
-  # 获取标准化的表达数据
-  # 使用rlog或vst转换以获得同方差稳定的数据
-  if (ncol(dds) < 30) {
-    expr_data <- rlog(dds, blind = FALSE)
-    cat("样本数 < 30，使用rlog转换\n")
-  } else {
-    expr_data <- vst(dds, blind = FALSE)
-    cat("样本数 >= 30，使用VST转换\n")
-  }
+  # 保留在至少 10 %样本中表达量 > min_count的 基因
+  min_samples_count <- ceiling(ncol(vsd_data) * min_samples)
+  keep_genes <- rowSums(vsd_data > min_count) >= min_samples_count
+  vsd_data <- vsd_data[keep_genes, ]
   
-  # 提取表达矩阵
-  expr_matrix <- assay(expr_data)
   
-  # 过滤低表达基因
-  # 保留在至少10%样本中表达量 > min_count的基因
-  min_samples_count <- ceiling(ncol(expr_matrix) * min_samples)
-  keep_genes <- rowSums(expr_matrix > min_count) >= min_samples_count
-  expr_matrix <- expr_matrix[keep_genes, ]
+  ### 过滤掉低方差的基因
+  rv <- rowVars(vsd_data)
+  quantiles <- quantile(rv, quantile)
+  filtered_data <- vsd_data[rv > quantiles, ]
   
-  cat(sprintf("过滤后保留 %d 个基因\n", nrow(expr_matrix)))
+  cat("剩余 ", dim(filtered_data)[1], " 个基因和 ", dim(filtered_data)[2], "个样本，样本示例： ", colnames(filtered_data)[1:5]  )
+
+  return(filtered_data)
   
-  # 转置矩阵（WGCNA需要样本为行，基因为列）
-  datExpr <- t(expr_matrix)
-  
-  # 检查数据质量
-  gsg <- goodSamplesGenes(datExpr, verbose = 3)
-  if (!gsg$allOK) {
-    if (sum(!gsg$goodGenes) > 0) {
-      cat(sprintf("移除 %d 个质量不佳的基因\n", sum(!gsg$goodGenes)))
-    }
-    if (sum(!gsg$goodSamples) > 0) {
-      cat(sprintf("移除 %d 个质量不佳的样本\n", sum(!gsg$goodSamples)))
-    }
-    datExpr <- datExpr[gsg$goodSamples, gsg$goodGenes]
-  }
-  
-  return(list(
-    datExpr = datExpr,
-    sample_info = colData(dds)[rownames(datExpr), ],
-    original_dds = dds
-  ))
 }
 
 
@@ -326,6 +368,41 @@ auto_select_soft_Power <- function(datExpr){
   
 }
 
+
+# WGCNA网络分析，并绘制图形
+
+net_and_plot <- function(datExpr, softPower, labeltext = "Module colors"){
+  
+  datExpr <- datExpr
+  softPower <- softPower
+  
+  net <- WGCNA::blockwiseModules(t(datExpr), 
+                               power = softPower,
+                               TOMType = "unsigned", 
+                               minModuleSize = 30,
+                               reassignThreshold = 1e-6,   # 初步未分配的模块是否重新分配，0表示不分配, 1e-6 默认值，几乎所有基因都会被分配
+                               mergeCutHeight = 0.25,
+                               numericLabels = TRUE, 
+                               pamRespectsDendro = FALSE,
+                               saveTOMs = TRUE,
+                               saveTOMFileBase = "TOM",
+                               verbose = 3
+  )
+  
+  
+  modulecolors <- WGCNA::labels2colors(net$colors)
+  
+  plotDendroAndColors(net$dendrograms[[1]], 
+                      modulecolors[net$blockGenes[[1]]],
+                      labeltext,
+                      dendroLabels = FALSE, 
+                      hang = 0.03,
+                      addGuide = TRUE, 
+                      guideHang = 0.05
+                      )
+
+  return(net)
+}
 
 
 
