@@ -138,6 +138,7 @@ GO_enrichment <- function(diffgenes, backgroundgenes, GTF, emapperannotations){
                                        columns=c("GOID", "TERM"), 
                                        keytype="GOID") 
   colnames(goterm2name) <- c("term", "name")
+  remove(emapperannotations_data)
   
   cat("\tenricher\n")
   enrichment_GO <- clusterProfiler::enricher(gene = diffgenes, 
@@ -182,7 +183,8 @@ KEGG_enrichment <- function(diffgenes, backgroundgenes, GTF, emapperannotations)
    
   diffgenes2kegg <- eggNOG_kegg2gene %>% dplyr::filter(gene_id %in% diffgenes) %>% pull(KEGG_ko) 
   backgroundgenes2kegg <- eggNOG_kegg2gene %>%  dplyr::filter(gene_id %in% backgroundgenes) %>% pull(KEGG_ko) 
- 
+  
+  remove(emapperannotations_data)
   cat("\tenricherKEGG\n")
   enrichment_kegg <- clusterProfiler::enrichKEGG(diffgenes2kegg,
                                 organism = "ko",
@@ -193,30 +195,47 @@ KEGG_enrichment <- function(diffgenes, backgroundgenes, GTF, emapperannotations)
                                 universe = backgroundgenes2kegg,
                                 use_internal_data = FALSE)
   
+  cat("\tAdd information about Level\n")
+  
+  
   enrichment_kegg@result <- enrichment_kegg@result %>%
     rowwise() %>%
     mutate(
-      # 添加 gene_ids
-      gene_ids = {
-        genekeggs <- strsplit(geneID, "/")[[1]]
-        gene_ids <- eggNOG_kegg2gene[eggNOG_kegg2gene$KEGG_ko %in% genekeggs, ]$gene_id %>% 
-          unique()
-        gene_ids[gene_ids %in% diffgenes] %>% 
-          paste0(collapse = "/")
-      },
-      # 添加 CLASS
-      CLASS = {
-        tryCatch({
-          keggfile <- KEGGREST::keggGet(ID)
-          CLASS <- keggfile[[1]]$CLASS
-          if(is.null(CLASS)) NA_character_ else CLASS
-        }, error = function(e) NA_character_)
-      }
-    ) %>%
-    ungroup() %>%
-    # 拆分 CLASS 为 L1 和 L2
-    tidyr::separate(CLASS, into = c("L1", "L2"), sep = "; ", remove = FALSE, fill = "right")
+        gene_ids = {
+          genekeggs <- strsplit(geneID, "/")[[1]]
+          gene_ids <- eggNOG_kegg2gene[eggNOG_kegg2gene$KEGG_ko %in% genekeggs, ]$gene_id %>%
+            unique()
+          gene_ids[gene_ids %in% diffgenes] %>%
+            paste0(collapse = "/")
+        },
+        CLASS = {
+          tryCatch({
+            keggfile <- KEGGREST::keggGet(ID)
+            CLASS <- keggfile[[1]]$CLASS
+            if(is.null(CLASS)) NA_character_ else CLASS
+          }, error = function(e) NA_character_)
+        }
+    ) 
   
+   
+   cat("\tSplit CLASS into L1 and L2\n")
+   
+   ### 【以下方法消耗内存过大】
+   # enrichment_kegg@result <- enrichment_kegg@result %>% 
+   #   tidyr::separate(CLASS, into = c("L1", "L2"), sep = "; ", remove = FALSE, fill = "right")
+
+   
+   enrichment_kegg@result$L1 <- apply(enrichment_kegg@result, 1, function(row){
+     L1 <- row["CLASS"] %>% strsplit("; ") %>% unlist() %>% head(1)
+     return(L1)
+   })
+   
+   enrichment_kegg@result$L2 <- apply(enrichment_kegg@result, 1, function(row){
+     L2 <- row["CLASS"] %>% strsplit("; ") %>% unlist() %>% tail(1)
+     return(L2)
+   })
+   
+   
    return(enrichment_kegg)
 
 }
@@ -245,56 +264,6 @@ anno_plot <- function(object, title){
 # 从 dds 文件开始，准备 WGCNA 分析的输入数据 ===================================
 
 
-# prepare_data_for_wgcna <- function(dds, min_count = 10, min_samples = 0.1) {
-  
-#   dds <- dds
-#   min_count <- min_count
-#   min_samples <- min_samples
-  
-  
-#   # 获取标准化的表达数据
-#   # 使用rlog或vst转换以获得同方差稳定的数据
-#   if (ncol(dds) < 30) {
-#     expr_data <- rlog(dds, blind = FALSE)
-#     cat("样本数 < 30，使用rlog转换\n")
-#   } else {
-#     expr_data <- vst(dds, blind = FALSE)
-#     cat("样本数 >= 30，使用VST转换\n")
-#   }
-  
-#   # 提取表达矩阵
-#   expr_matrix <- assay(expr_data)
-  
-#   # 过滤低表达基因
-#   # 保留在至少10%样本中表达量 > min_count的基因
-#   min_samples_count <- ceiling(ncol(expr_matrix) * min_samples)
-#   keep_genes <- rowSums(expr_matrix > min_count) >= min_samples_count
-#   expr_matrix <- expr_matrix[keep_genes, ]
-  
-#   cat(sprintf("过滤后保留 %d 个基因\n", nrow(expr_matrix)))
-  
-#   # 转置矩阵（WGCNA需要样本为行，基因为列）
-#   datExpr <- t(expr_matrix)
-  
-#   # 检查数据质量
-#   gsg <- goodSamplesGenes(datExpr, verbose = 3)
-#   if (!gsg$allOK) {
-#     if (sum(!gsg$goodGenes) > 0) {
-#       cat(sprintf("移除 %d 个质量不佳的基因\n", sum(!gsg$goodGenes)))
-#     }
-#     if (sum(!gsg$goodSamples) > 0) {
-#       cat(sprintf("移除 %d 个质量不佳的样本\n", sum(!gsg$goodSamples)))
-#     }
-#     datExpr <- datExpr[gsg$goodSamples, gsg$goodGenes]
-#   }
-  
-#   return(list(
-#     datExpr = datExpr,
-#     sample_info = colData(dds)[rownames(datExpr), ],
-#     original_dds = dds
-#   ))
-# }
-
 prepare_data_for_wgcna <- function(dds, quantile, min_count = 10, min_samples = 0.1 ) {
   
   dds <- dds
@@ -312,7 +281,7 @@ prepare_data_for_wgcna <- function(dds, quantile, min_count = 10, min_samples = 
   
   
   ### 过滤掉低方差的基因
-  rv <- rowVars(vsd_data)
+  rv <- MatrixGenerics::rowVars(vsd_data)
   quantiles <- quantile(rv, quantile)
   filtered_data <- vsd_data[rv > quantiles, ]
   
@@ -371,10 +340,13 @@ auto_select_soft_Power <- function(datExpr){
 
 # WGCNA网络分析，并绘制图形
 
-net_and_plot <- function(datExpr, softPower, labeltext = "Module colors"){
+net_and_plot <- function(datExpr, softPower,pdffile, labeltext = "Module colors", corType = "pearson"){
   
   datExpr <- datExpr
   softPower <- softPower
+  pdffile <- pdffile
+  labeltext <- labeltext
+  corType <- corType
   
   net <- WGCNA::blockwiseModules(t(datExpr), 
                                power = softPower,
@@ -384,14 +356,18 @@ net_and_plot <- function(datExpr, softPower, labeltext = "Module colors"){
                                mergeCutHeight = 0.25,
                                numericLabels = TRUE, 
                                pamRespectsDendro = FALSE,
-                               saveTOMs = TRUE,
-                               saveTOMFileBase = "TOM",
-                               verbose = 3
+                               #saveTOMs = TRUE,
+                               #saveTOMFileBase = "TOM",
+                               verbose = 3,
+                               corType = corType,
+                               corFnc = WGCNA::cor,  # Pass the function itself
+                               corOptions = list(use = "p")
   )
   
   
   modulecolors <- WGCNA::labels2colors(net$colors)
   
+  pdf(file = pdffile, width = 14, height = 4)
   plotDendroAndColors(net$dendrograms[[1]], 
                       modulecolors[net$blockGenes[[1]]],
                       labeltext,
@@ -400,6 +376,7 @@ net_and_plot <- function(datExpr, softPower, labeltext = "Module colors"){
                       addGuide = TRUE, 
                       guideHang = 0.05
                       )
+  dev.off()
 
   return(net)
 }
