@@ -37,7 +37,7 @@ def outfiles():
     if step == "annotate" or step == "all":
         include: "rules/5.GOandKEGG.smk"
         files.append(gokegg_outputs)
-        
+        files.append("result/WGCNA/WGCNAfile.rds")
     #print(files)
     return files
 
