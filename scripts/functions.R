@@ -281,7 +281,7 @@ prepare_data_for_wgcna <- function(dds, quantile, min_count = 10, min_samples = 
   
   
   ### 过滤掉低方差的基因
-  rv <- MatrixGenerics::rowVars(vsd_data)
+  rv <- MatrixGenerics::rowVars(vsd_data, useNames = FALSE)
   quantiles <- quantile(rv, quantile)
   filtered_data <- vsd_data[rv > quantiles, ]
   
@@ -340,7 +340,7 @@ auto_select_soft_Power <- function(datExpr){
 
 # WGCNA网络分析，并绘制图形
 
-net_and_plot <- function(datExpr, softPower,pdffile, labeltext = "Module colors", corType = "pearson"){
+net_and_plot <- function(datExpr, softPower, pdffile, labeltext = "Module colors", corType = "pearson"){
   
   datExpr <- datExpr
   softPower <- softPower
