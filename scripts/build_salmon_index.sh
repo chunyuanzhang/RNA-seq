@@ -45,17 +45,15 @@ gffread -w "${TRANSCRIPTS}" -g "${GENOME}" "${GFF}"
 # ============================================================
 
 # ------------------------------------------------------------
-# 建索引函数: build_one <物种名> <转录组FASTA> <基因组FASTA>
+# 建索引函数: build_one <转录组FASTA> <基因组FASTA>
 # ------------------------------------------------------------
 build_one() {
-    local sp="$1"
-    local transcripts="$2"
-    local genome="$3"
-    local idxdir="${INDEX_ROOT}/${sp}"
+    local transcripts="$1"
+    local genome="$2"
+    local idxdir="${INDEX_ROOT}"
 
     echo ""
     echo "==================================================="
-    echo "==== 物种: ${sp}"
     echo "==================================================="
 
     # --- 检查输入文件存在 ---
@@ -70,7 +68,7 @@ build_one() {
 
     # --- 若已建好则跳过 (seq.bin 是完成标志之一) ---
     if [[ -f "${idxdir}/seq.bin" ]]; then
-        echo "[跳过] ${sp} 索引已存在: ${idxdir} (如需重建请先删除该目录)"
+        echo "[跳过] 索引已存在: ${idxdir} (如需重建请先删除该目录)"
         return 0
     fi
 
@@ -93,7 +91,7 @@ build_one() {
         -k "${KMER}" \
         -p "${THREADS}"
 
-    echo "[完成] ${sp} 索引: ${idxdir}"
+    echo "[完成] 索引: ${idxdir}"
 }
 
 # ------------------------------------------------------------
@@ -105,11 +103,11 @@ echo "salmon 版本:"
 
 mkdir -p "${INDEX_ROOT}"
 
-build_one "duck"    "${TRANSCRIPTS}"    "${GENOME}"
+build_one "${TRANSCRIPTS}"  "${GENOME}"
 
 echo ""
 echo "==================================================="
 echo "全部索引构建完成。"
-echo "  ${INDEX_ROOT}/duck"
+echo "  ${INDEX_ROOT}"
 echo ""
 echo "==================================================="
