@@ -247,7 +247,7 @@ anno_plot <- function(object, title){
   object <- object
   title <- title
   
-  p <- enrichplot::dotplot(object, showCategory=20, font.size=10, label_format=70) + 
+  p <- enrichplot::dotplot(object, showCategory=25, font.size=10, label_format=70) + 
     scale_size_continuous(range = c(1,7)) + 
     theme_minimal() + 
     ggtitle(title)
@@ -293,7 +293,6 @@ prepare_data_for_wgcna <- function(dds, quantile, min_count = 10, min_samples = 
 
 
 #  自动选择软阈值 ==============================================================
-
 
 auto_select_soft_Power <- function(datExpr){
   datExpr <- datExpr
@@ -352,12 +351,12 @@ net_and_plot <- function(datExpr, softPower, pdffile, labeltext = "Module colors
                                power = softPower,
                                TOMType = "unsigned", 
                                minModuleSize = 30,
-                               reassignThreshold = 1e-6,   # 初步未分配的模块是否重新分配，0表示不分配, 1e-6 默认值，几乎所有基因都会被分配
-                               mergeCutHeight = 0.25,
-                               numericLabels = TRUE, 
-                               pamRespectsDendro = FALSE,
-                               #saveTOMs = TRUE,
-                               #saveTOMFileBase = "TOM",
+                               reassignThreshold = 1e-6,   # 基因重分配阈值，值越小越严格。1e-6接近默认，允许边缘基因重新分配到更合适的模块
+                               mergeCutHeight = 0.15,      # 模块合并阈值，ME相关性 > 0.85 (1-0.15) 的模块会被合并
+                               numericLabels = FALSE, 
+                               pamRespectsDendro = FALSE,  # PAM分配时是否严格遵循树状图结构
+                               saveTOMs = TRUE,
+                               saveTOMFileBase = "TOM",
                                verbose = 3,
                                corType = corType,
                                corFnc = WGCNA::cor,  # Pass the function itself
@@ -365,7 +364,7 @@ net_and_plot <- function(datExpr, softPower, pdffile, labeltext = "Module colors
   )
   
   
-  modulecolors <- WGCNA::labels2colors(net$colors)
+  modulecolors <- net$colors
   
   pdf(file = pdffile, width = 14, height = 4)
   plotDendroAndColors(net$dendrograms[[1]], 
@@ -382,6 +381,25 @@ net_and_plot <- function(datExpr, softPower, pdffile, labeltext = "Module colors
 }
 
 
+# 统计模块特征向量解释度
+
+calculate_variance_explained <- function(datKME, genes_in_module){
+  
+  # 特征向量能够解释模块内基因表达变异的百分比
+  # 模块中所有基因的特征向量均方值即为模块解释度
+  
+  datKME <- datKME
+  genes_in_module <- genes_in_module
+  
+  VEs <- list()
+  for (module in genes_in_module %>% names()) {
+    kMEmodule <- paste0("kME", module)
+    VE <- datKME[genes_in_module[[module]], kMEmodule]^2 %>% mean(na.rm = TRUE)
+    VEs[[module]] <- VE
+  }
+  
+  return(VEs)
+}
 
 
 
