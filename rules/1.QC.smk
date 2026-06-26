@@ -51,8 +51,7 @@ rule quality_summary:
 rule quality_control:
     input:
         rawdata_1 = "result/RawData/{sample}.raw.1.fq.gz",
-        rawdata_2 = "result/RawData/{sample}.raw.2.fq.gz",
-        summary = "result/QC/Raw/multiqc_report.html"
+        rawdata_2 = "result/RawData/{sample}.raw.2.fq.gz"
     output:
         cleandata_1 = "result/CleanData/{sample}.clean.1.fq.gz",
         cleandata_2 = "result/CleanData/{sample}.clean.2.fq.gz",

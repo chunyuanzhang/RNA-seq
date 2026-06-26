@@ -76,16 +76,14 @@ tx <- df %>% filter(type %in% tx_types)
 t2g <- tx %>%
   mutate(
     TXNAME = str_match(attr, "(?:^|;)ID=(?:rna-)?([^;]+)")[,2],   # 裸转录本ID
-    GENEID = str_match(attr, "GeneID:([0-9]+)")[,2],              # 稳定数字ID
+    # GENEID = str_match(attr, "GeneID:([0-9]+)")[,2],              # 稳定数字ID
     SYMBOL = str_match(attr, "(?:^|;)gene=([^;]+)")[,2]           # 顺带留 symbol
   ) %>%
-  filter(!is.na(TXNAME), !is.na(GENEID)) %>%
-  select(TXNAME, GENEID, SYMBOL) %>%
+  filter(!is.na(TXNAME), !is.na(SYMBOL)) %>%
+  select(TXNAME, SYMBOL) %>%
   distinct()
 
-geneid2symbol <- t2g %>% dplyr::select(GENEID, SYMBOL) %>% distinct()
-
-write.table(geneid2symbol, file.path(outdir, paste0(Species, "_geneid2symbol.tsv")), sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(t2g, file.path(outdir, paste0(Species, "_trans2symbol.tsv")), sep = "\t", quote = FALSE, row.names = FALSE)
 
 #-------------------------------------------------------------------------------
 # 读取Salmon输出的quant.sf文件，并输出基因表达矩阵
@@ -103,8 +101,8 @@ rownames(txi$length)    <- sub("^(rna-|gene-)", "", rownames(txi$length))
 
 
 # 汇到基因层，先看基因表达是否有差异
-txi_gene <- summarizeToGene(txi, tx2gene = t2g[, c("TXNAME", "GENEID")], countsFromAbundance = "lengthScaledTPM")
-txi_gene_raw <- summarizeToGene(txi, tx2gene = t2g[, c("TXNAME", "GENEID")], countsFromAbundance = "no")
+txi_gene <- summarizeToGene(txi, tx2gene = t2g[, c("TXNAME", "SYMBOL")], countsFromAbundance = "lengthScaledTPM")
+txi_gene_raw <- summarizeToGene(txi, tx2gene = t2g[, c("TXNAME", "SYMBOL")], countsFromAbundance = "no")
 
 # ---- 导出 gene-level 三个矩阵 ----
 out_counts <- data.frame(gene_id = rownames(txi_gene_raw$counts),    txi_gene_raw$counts,    check.names = FALSE)

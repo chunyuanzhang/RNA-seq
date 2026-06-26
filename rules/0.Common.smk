@@ -9,19 +9,15 @@ import glob
 ### load config file======================================================================================================
 configfile: "config/config.yaml"
 
-# === 工具或分析流程选择 ===============================
- # 使用rsem工具一步完成比对和统计
-pipeline = config["pipeline"]
-
 # === 指定分析步骤 ====================================
-step = config["step"]
+step = config["step"].split(",")  # 可以指定多个步骤，逗号分隔
 
 # === 元信息 =========================================
 infotable = config["infotable"]
 design = config["design"]
 untreated = config["untreated"]
 lfc = config["lfc"]
-pval = config["pval"]
+padj = config["padj"]
 
 
 # infotable文件内容示意，列名是固定的，不可更改
@@ -72,7 +68,7 @@ if os.path.exists(infotable):
     metainfo_dict_Group = dict(zip(metainfo.SampleID, metainfo.GroupID)) 
     metainfo_dict_Genome = dict(zip(metainfo.SampleID, metainfo.GenomeName)) 
     metainfo_dict_Species = dict(zip(metainfo.SampleID, metainfo.Species)) 
-    # metainfo_dict_Species_to_Genome = dict(zip(metainfo.Species, metainfo.GenomeName)) 
+    metainfo_dict_Species_to_Genome = dict(zip(metainfo.Species, metainfo.GenomeName)) 
     metainfo_dict_Design_to_Genome = dict(zip(metainfo[design], metainfo.GenomeName))
 
     # === 成对比较逻辑（根据 design 列进行分组）==========
@@ -136,12 +132,31 @@ def get_emapper_by_design_value(wildcards):
 
 def get_genome_gtf(wildcards):
     """根据样本获取对应的基因组 GTF 文件"""
-    genome = metainfo_dict_Genome.get(wildcards.sample)
+    genome = metainfo_dict_Genome.get(wildcards)
     gtf_files = glob.glob(f"{referenceDir}{genome}/*.gtf")
     if not gtf_files:
         raise FileNotFoundError(f"No GTF file found in {referenceDir}{genome}/")
     return gtf_files[0]
 
+
+def get_genome_gff(wildcards):
+    """根据样本获取对应的基因组 GFF 文件"""
+    genome = metainfo_dict_Species_to_Genome.get(wildcards)
+    print(genome)
+    gff_files = glob.glob(f"{referenceDir}{genome}/*.gff")
+    if not gff_files:
+        raise FileNotFoundError(f"No GFF file found in {referenceDir}{genome}/")
+    return gff_files[0]
+
+
+
+def get_genome_fasta(wildcards):
+    """根据样本获取对应的基因组 fasta 文件"""
+    genome = metainfo_dict_Species_to_Genome.get(wildcards)
+    fasta_files = glob.glob(f"{referenceDir}{genome}/*.fna")
+    if not fasta_files:
+        raise FileNotFoundError(f"No fasta file found in {referenceDir}{genome}/")
+    return fasta_files[0]
 
 
 ### tools ================================================================================================================
@@ -153,5 +168,6 @@ bwa = config["tools"]["bwa"]
 samtools = config["tools"]["samtools"]
 bcftools = config["tools"]["bcftools"]
 STAR = config["tools"]["STAR"]
-
+salmon = config["tools"]["salmon"]
+R453 = config["tools"]["R453"]
 
