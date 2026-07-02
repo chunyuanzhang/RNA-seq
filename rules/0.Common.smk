@@ -16,6 +16,7 @@ step = config["step"].split(",")  # 可以指定多个步骤，逗号分隔
 infotable = config["infotable"]
 design = config["design"]
 untreated = config["untreated"]
+confoundingvariable = "".join(config["confoundingvariable"].split()) # 混淆变量，多个变量用逗号分隔
 lfc = config["lfc"]
 padj = config["padj"]
 
@@ -64,7 +65,8 @@ if os.path.exists(infotable):
         raise ValueError(f"Design column '{design}' not found in {infotable}. Available columns: {metainfo.columns.tolist()}")
 
     samples = metainfo.SampleID.tolist()
-    
+    specieses = metainfo.Species.unique().tolist()
+
     metainfo_dict_Group = dict(zip(metainfo.SampleID, metainfo.GroupID)) 
     metainfo_dict_Genome = dict(zip(metainfo.SampleID, metainfo.GenomeName)) 
     metainfo_dict_Species = dict(zip(metainfo.SampleID, metainfo.Species)) 
@@ -90,7 +92,6 @@ if os.path.exists(infotable):
             gokegg_outputs.append(f"result/DEseq/{pairname}.{group}.KEGG.csv")
             gokegg_outputs.append(f"result/DEseq/{pairname}.{group}.GO.csv")
 
-    #print(gokegg_outputs)
 
     # 如果在物种间进行比较，需要把物种和参考基因组去冗余，便于控制命令重复次
     if design == "Species":
@@ -142,7 +143,6 @@ def get_genome_gtf(wildcards):
 def get_genome_gff(wildcards):
     """根据样本获取对应的基因组 GFF 文件"""
     genome = metainfo_dict_Species_to_Genome.get(wildcards)
-    print(genome)
     gff_files = glob.glob(f"{referenceDir}{genome}/*.gff")
     if not gff_files:
         raise FileNotFoundError(f"No GFF file found in {referenceDir}{genome}/")

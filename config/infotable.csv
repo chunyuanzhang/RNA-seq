@@ -1,75 +1,90 @@
-SampleID,GroupID,GenomeName,Species,Batch
-FHSY-C-31,FHSY,IASCAAS_PekinDuck_T2T,Duck,second
-FHSY-C-32,FHSY,IASCAAS_PekinDuck_T2T,Duck,second
-FHSY-C-33,FHSY,IASCAAS_PekinDuck_T2T,Duck,second
-FHSY-C-34,FHSY,IASCAAS_PekinDuck_T2T,Duck,second
-FHSY-C-35,FHSY,IASCAAS_PekinDuck_T2T,Duck,second
-XSJ-C-31,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-XSJ-C-32,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-XSJ-C-33,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-XSJ-C-34,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-XSJ-C-35,XSJ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-BC-C-31,BC,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-BC-C-32,BC,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-BC-C-33,BC,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-BC-C-34,BC,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-BC-C-35,BC,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-BR-C-1,BR,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-BR-C-2,BR,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-BR-C-3,BR,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-HX-C-31,HX,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-HX-C-32,HX,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-HX-C-33,HX,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-HX-C-34,HX,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-HX-C-35,HX,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-LKJ-C-31,LKJ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-LKJ-C-32,LKJ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-LKJ-C-33,LKJ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-LKJ-C-34,LKJ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-LKJ-C-35,LKJ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-QM-C-31,QM,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-QM-C-32,QM,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-QM-C-33,QM,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-QM-C-34,QM,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-QM-C-35,QM,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-SZ-C-31,SZ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-SZ-C-32,SZ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-SZ-C-33,SZ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-SZ-C-34,SZ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-SZ-C-35,SZ,bGalGal1_mat_broiler_GRCg7b,Chicken,second
-JDY-C-31,JDY,IASCAAS_PekinDuck_T2T,Duck,second
-JDY-C-32,JDY,IASCAAS_PekinDuck_T2T,Duck,second
-JDY-C-33,JDY,IASCAAS_PekinDuck_T2T,Duck,second
-JDY-C-34,JDY,IASCAAS_PekinDuck_T2T,Duck,second
-JDY-C-35,JDY,IASCAAS_PekinDuck_T2T,Duck,second
-JYMY-C-31,JYMY,IASCAAS_PekinDuck_T2T,Duck,second
-JYMY-C-32,JYMY,IASCAAS_PekinDuck_T2T,Duck,second
-JYMY-C-33,JYMY,IASCAAS_PekinDuck_T2T,Duck,second
-JYMY-C-34,JYMY,IASCAAS_PekinDuck_T2T,Duck,second
-JYMY-C-35,JYMY,IASCAAS_PekinDuck_T2T,Duck,second
-LYSMY-C-31,LYSMY,IASCAAS_PekinDuck_T2T,Duck,second
-LYSMY-C-32,LYSMY,IASCAAS_PekinDuck_T2T,Duck,second
-LYSMY-C-33,LYSMY,IASCAAS_PekinDuck_T2T,Duck,second
-LYSMY-C-34,LYSMY,IASCAAS_PekinDuck_T2T,Duck,second
-LYSMY-C-35,LYSMY,IASCAAS_PekinDuck_T2T,Duck,second
-MA-C-1,MA,IASCAAS_PekinDuck_T2T,Duck,first
-MA-C-2,MA,IASCAAS_PekinDuck_T2T,Duck,first
-MA-C-32,MA,IASCAAS_PekinDuck_T2T,Duck,second
-MA-C-33,MA,IASCAAS_PekinDuck_T2T,Duck,second
-MA-C-34,MA,IASCAAS_PekinDuck_T2T,Duck,second
-MA-C-35,MA,IASCAAS_PekinDuck_T2T,Duck,second
-MA-C-36,MA,IASCAAS_PekinDuck_T2T,Duck,second
-MA-C-4,MA,IASCAAS_PekinDuck_T2T,Duck,first
-PK-C-1,PK,IASCAAS_PekinDuck_T2T,Duck,first
-PK-C-2,PK,IASCAAS_PekinDuck_T2T,Duck,first
-PK-C-3,PK,IASCAAS_PekinDuck_T2T,Duck,first
-YT-C-31,YT,IASCAAS_PekinDuck_T2T,Duck,second
-YT-C-32,YT,IASCAAS_PekinDuck_T2T,Duck,second
-YT-C-33,YT,IASCAAS_PekinDuck_T2T,Duck,second
-YT-C-34,YT,IASCAAS_PekinDuck_T2T,Duck,second
-YT-C-35,YT,IASCAAS_PekinDuck_T2T,Duck,second
-SX-C-31,SX,IASCAAS_PekinDuck_T2T,Duck,second
-SX-C-32,SX,IASCAAS_PekinDuck_T2T,Duck,second
-SX-C-33,SX,IASCAAS_PekinDuck_T2T,Duck,second
-SX-C-34,SX,IASCAAS_PekinDuck_T2T,Duck,second
-SX-C-35,SX,IASCAAS_PekinDuck_T2T,Duck,second
+SampleID,GroupID,中文名,Species,Scientific.name.,DomesticationStatus,Organ,Province,Area,Batch,Transcriptome,Virume,longitude,latitude,GenomeName
+BC-C-31,BC,拜城油鸡,Chicken,Gallus Gallus,Domestic,Cecum,Xinjiang,Northwest,Second,RNA-seq,Virus-seq,82,42,bGalGal1_mat_broiler_GRCg7b
+BC-C-32,BC,拜城油鸡,Chicken,Gallus Gallus,Domestic,Cecum,Xinjiang,Northwest,Second,RNA-seq,Virus-seq,82,42,bGalGal1_mat_broiler_GRCg7b
+BC-C-33,BC,拜城油鸡,Chicken,Gallus Gallus,Domestic,Cecum,Xinjiang,Northwest,Second,RNA-seq,Virus-seq,82,42,bGalGal1_mat_broiler_GRCg7b
+BC-C-34,BC,拜城油鸡,Chicken,Gallus Gallus,Domestic,Cecum,Xinjiang,Northwest,Second,RNA-seq,Virus-seq,82,42,bGalGal1_mat_broiler_GRCg7b
+BC-C-35,BC,拜城油鸡,Chicken,Gallus Gallus,Domestic,Cecum,Xinjiang,Northwest,Second,RNA-seq,Virus-seq,82,42,bGalGal1_mat_broiler_GRCg7b
+BR-C-1,BR,商业肉鸡,Chicken,Gallus Gallus,Commercial,Cecum,Beijing,HuaihaiPlain,First,RNA-seq,Virus-seq,117.2,40,bGalGal1_mat_broiler_GRCg7b
+BR-C-2,BR,商业肉鸡,Chicken,Gallus Gallus,Commercial,Cecum,Beijing,HuaihaiPlain,First,RNA-seq,Virus-seq,117.2,40,bGalGal1_mat_broiler_GRCg7b
+BR-C-3,BR,商业肉鸡,Chicken,Gallus Gallus,Commercial,Cecum,Beijing,HuaihaiPlain,First,RNA-seq,Virus-seq,117.2,40,bGalGal1_mat_broiler_GRCg7b
+HX-C-31,HX,惠阳胡须鸡,Chicken,Gallus Gallus,Domestic,Cecum,Guangdong,Southeast,Second,RNA-seq,Virus-seq,114.13,23.5,bGalGal1_mat_broiler_GRCg7b
+HX-C-32,HX,惠阳胡须鸡,Chicken,Gallus Gallus,Domestic,Cecum,Guangdong,Southeast,Second,RNA-seq,Virus-seq,114.13,23.5,bGalGal1_mat_broiler_GRCg7b
+HX-C-33,HX,惠阳胡须鸡,Chicken,Gallus Gallus,Domestic,Cecum,Guangdong,Southeast,Second,RNA-seq,Virus-seq,114.13,23.5,bGalGal1_mat_broiler_GRCg7b
+HX-C-34,HX,惠阳胡须鸡,Chicken,Gallus Gallus,Domestic,Cecum,Guangdong,Southeast,Second,RNA-seq,Virus-seq,114.13,23.5,bGalGal1_mat_broiler_GRCg7b
+HX-C-35,HX,惠阳胡须鸡,Chicken,Gallus Gallus,Domestic,Cecum,Guangdong,Southeast,Second,RNA-seq,Virus-seq,114.13,23.5,bGalGal1_mat_broiler_GRCg7b
+# LHJ-C-31,LHJ,芦花鸡,Chicken,Gallus Gallus,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,116.51,35.65,bGalGal1_mat_broiler_GRCg7b
+# LHJ-C-32,LHJ,芦花鸡,Chicken,Gallus Gallus,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,116.51,35.65,bGalGal1_mat_broiler_GRCg7b
+# LHJ-C-33,LHJ,芦花鸡,Chicken,Gallus Gallus,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,116.51,35.65,bGalGal1_mat_broiler_GRCg7b
+# LHJ-C-34,LHJ,芦花鸡,Chicken,Gallus Gallus,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,116.51,35.65,bGalGal1_mat_broiler_GRCg7b
+# LHJ-C-35,LHJ,芦花鸡,Chicken,Gallus Gallus,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,116.51,35.65,bGalGal1_mat_broiler_GRCg7b
+LKJ-C-31,LKJ,灵昆鸡,Chicken,Gallus Gallus,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.25,29.8,bGalGal1_mat_broiler_GRCg7b
+LKJ-C-32,LKJ,灵昆鸡,Chicken,Gallus Gallus,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.25,29.8,bGalGal1_mat_broiler_GRCg7b
+LKJ-C-33,LKJ,灵昆鸡,Chicken,Gallus Gallus,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.25,29.8,bGalGal1_mat_broiler_GRCg7b
+LKJ-C-34,LKJ,灵昆鸡,Chicken,Gallus Gallus,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.25,29.8,bGalGal1_mat_broiler_GRCg7b
+LKJ-C-35,LKJ,灵昆鸡,Chicken,Gallus Gallus,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.25,29.8,bGalGal1_mat_broiler_GRCg7b
+QM-C-31,QM,清远麻鸡,Chicken,Gallus Gallus,Domestic,Cecum,Guangdong,Southeast,Second,RNA-seq,Virus-seq,113.2,24.2,bGalGal1_mat_broiler_GRCg7b
+QM-C-32,QM,清远麻鸡,Chicken,Gallus Gallus,Domestic,Cecum,Guangdong,Southeast,Second,RNA-seq,Virus-seq,113.2,24.2,bGalGal1_mat_broiler_GRCg7b
+QM-C-33,QM,清远麻鸡,Chicken,Gallus Gallus,Domestic,Cecum,Guangdong,Southeast,Second,RNA-seq,Virus-seq,113.2,24.2,bGalGal1_mat_broiler_GRCg7b
+QM-C-34,QM,清远麻鸡,Chicken,Gallus Gallus,Domestic,Cecum,Guangdong,Southeast,Second,RNA-seq,Virus-seq,113.2,24.2,bGalGal1_mat_broiler_GRCg7b
+QM-C-35,QM,清远麻鸡,Chicken,Gallus Gallus,Domestic,Cecum,Guangdong,Southeast,Second,RNA-seq,Virus-seq,113.2,24.2,bGalGal1_mat_broiler_GRCg7b
+SZ-C-31,SZ,孙枝鸡,Chicken,Gallus Gallus,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,117.32,34.79,bGalGal1_mat_broiler_GRCg7b
+SZ-C-32,SZ,孙枝鸡,Chicken,Gallus Gallus,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,117.32,34.79,bGalGal1_mat_broiler_GRCg7b
+SZ-C-33,SZ,孙枝鸡,Chicken,Gallus Gallus,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,117.32,34.79,bGalGal1_mat_broiler_GRCg7b
+SZ-C-34,SZ,孙枝鸡,Chicken,Gallus Gallus,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,117.32,34.79,bGalGal1_mat_broiler_GRCg7b
+SZ-C-35,SZ,孙枝鸡,Chicken,Gallus Gallus,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,117.32,34.79,bGalGal1_mat_broiler_GRCg7b
+XSJ-C-31,XSJ,萧山鸡,Chicken,Gallus Gallus,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.25,30,bGalGal1_mat_broiler_GRCg7b
+XSJ-C-32,XSJ,萧山鸡,Chicken,Gallus Gallus,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.25,30,bGalGal1_mat_broiler_GRCg7b
+XSJ-C-33,XSJ,萧山鸡,Chicken,Gallus Gallus,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.25,30,bGalGal1_mat_broiler_GRCg7b
+XSJ-C-34,XSJ,萧山鸡,Chicken,Gallus Gallus,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.25,30,bGalGal1_mat_broiler_GRCg7b
+XSJ-C-35,XSJ,萧山鸡,Chicken,Gallus Gallus,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.25,30,bGalGal1_mat_broiler_GRCg7b
+FHSY-C-31,FHSY,奉化水鸭,Duck,Anas platyrhynchos,Semi-Domesticated,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,121.4,29.6,IASCAAS_PekinDuck_T2T
+FHSY-C-32,FHSY,奉化水鸭,Duck,Anas platyrhynchos,Semi-Domesticated,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,121.4,29.6,IASCAAS_PekinDuck_T2T
+FHSY-C-33,FHSY,奉化水鸭,Duck,Anas platyrhynchos,Semi-Domesticated,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,121.4,29.6,IASCAAS_PekinDuck_T2T
+FHSY-C-34,FHSY,奉化水鸭,Duck,Anas platyrhynchos,Semi-Domesticated,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,121.4,29.6,IASCAAS_PekinDuck_T2T
+FHSY-C-35,FHSY,奉化水鸭,Duck,Anas platyrhynchos,Semi-Domesticated,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,121.4,29.6,IASCAAS_PekinDuck_T2T
+JDY-C-31,JDY,金定鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Fujian,Southeast,Second,RNA-seq,Virus-seq,118,24.2,IASCAAS_PekinDuck_T2T
+JDY-C-32,JDY,金定鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Fujian,Southeast,Second,RNA-seq,Virus-seq,118,24.2,IASCAAS_PekinDuck_T2T
+JDY-C-33,JDY,金定鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Fujian,Southeast,Second,RNA-seq,Virus-seq,118,24.2,IASCAAS_PekinDuck_T2T
+JDY-C-34,JDY,金定鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Fujian,Southeast,Second,RNA-seq,Virus-seq,118,24.2,IASCAAS_PekinDuck_T2T
+JDY-C-35,JDY,金定鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Fujian,Southeast,Second,RNA-seq,Virus-seq,118,24.2,IASCAAS_PekinDuck_T2T
+JYMY-C-31,JYMY,缙云麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.21,28.66,IASCAAS_PekinDuck_T2T
+JYMY-C-32,JYMY,缙云麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.21,28.66,IASCAAS_PekinDuck_T2T
+JYMY-C-33,JYMY,缙云麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.21,28.66,IASCAAS_PekinDuck_T2T
+JYMY-C-34,JYMY,缙云麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.21,28.66,IASCAAS_PekinDuck_T2T
+JYMY-C-35,JYMY,缙云麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120.21,28.66,IASCAAS_PekinDuck_T2T
+LYSMY-C-31,LYSMY,龙岩山麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Fujian,Southeast,Second,RNA-seq,Virus-seq,117.03,25.02,IASCAAS_PekinDuck_T2T
+LYSMY-C-32,LYSMY,龙岩山麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Fujian,Southeast,Second,RNA-seq,Virus-seq,117.03,25.02,IASCAAS_PekinDuck_T2T
+LYSMY-C-33,LYSMY,龙岩山麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Fujian,Southeast,Second,RNA-seq,Virus-seq,117.03,25.02,IASCAAS_PekinDuck_T2T
+LYSMY-C-34,LYSMY,龙岩山麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Fujian,Southeast,Second,RNA-seq,Virus-seq,117.03,25.02,IASCAAS_PekinDuck_T2T
+LYSMY-C-35,LYSMY,龙岩山麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Fujian,Southeast,Second,RNA-seq,Virus-seq,117.03,25.02,IASCAAS_PekinDuck_T2T
+MA-C-1,MA,绿头野鸭,Duck,Anas platyrhynchos,Wild,Cecum,Zhejiang,YangtzeValley,First,RNA-seq,Virus-seq,119.87,29.76,IASCAAS_PekinDuck_T2T
+MA-C-2,MA,绿头野鸭,Duck,Anas platyrhynchos,Wild,Cecum,Zhejiang,YangtzeValley,First,RNA-seq,Virus-seq,119.87,29.76,IASCAAS_PekinDuck_T2T
+MA-C-32,MA,绿头野鸭,Duck,Anas platyrhynchos,Wild,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,119.87,29.76,IASCAAS_PekinDuck_T2T
+MA-C-33,MA,绿头野鸭,Duck,Anas platyrhynchos,Wild,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,119.87,29.76,IASCAAS_PekinDuck_T2T
+MA-C-34,MA,绿头野鸭,Duck,Anas platyrhynchos,Wild,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,119.87,29.76,IASCAAS_PekinDuck_T2T
+MA-C-35,MA,绿头野鸭,Duck,Anas platyrhynchos,Wild,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,119.87,29.76,IASCAAS_PekinDuck_T2T
+MA-C-36,MA,绿头野鸭,Duck,Anas platyrhynchos,Wild,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,119.87,29.76,IASCAAS_PekinDuck_T2T
+MA-C-4,MA,绿头野鸭,Duck,Anas platyrhynchos,Wild,Cecum,Zhejiang,YangtzeValley,First,RNA-seq,Virus-seq,119.87,29.76,IASCAAS_PekinDuck_T2T
+# MTHY-C-31,MTHY,马踏湖鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,118.06,37.07,IASCAAS_PekinDuck_T2T
+# MTHY-C-32,MTHY,马踏湖鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,118.06,37.07,IASCAAS_PekinDuck_T2T
+# MTHY-C-33,MTHY,马踏湖鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,118.06,37.07,IASCAAS_PekinDuck_T2T
+# MTHY-C-34,MTHY,马踏湖鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,118.06,37.07,IASCAAS_PekinDuck_T2T
+# MTHY-C-35,MTHY,马踏湖鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,118.06,37.07,IASCAAS_PekinDuck_T2T
+PK-C-1,PK,北京鸭,Duck,Anas platyrhynchos,Commercial,Cecum,Zhejiang,YangtzeValley,First,RNA-seq,Virus-seq,120.2,30.2,IASCAAS_PekinDuck_T2T
+PK-C-2,PK,北京鸭,Duck,Anas platyrhynchos,Commercial,Cecum,Zhejiang,YangtzeValley,First,RNA-seq,Virus-seq,120.2,30.2,IASCAAS_PekinDuck_T2T
+PK-C-3,PK,北京鸭,Duck,Anas platyrhynchos,Commercial,Cecum,Zhejiang,YangtzeValley,First,RNA-seq,Virus-seq,120.2,30.2,IASCAAS_PekinDuck_T2T
+SX-C-31,SX,绍兴鸭,Duck,Anas platyrhynchos,Commercial,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120,30,IASCAAS_PekinDuck_T2T
+SX-C-32,SX,绍兴鸭,Duck,Anas platyrhynchos,Commercial,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120,30,IASCAAS_PekinDuck_T2T
+SX-C-33,SX,绍兴鸭,Duck,Anas platyrhynchos,Commercial,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120,30,IASCAAS_PekinDuck_T2T
+SX-C-34,SX,绍兴鸭,Duck,Anas platyrhynchos,Commercial,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120,30,IASCAAS_PekinDuck_T2T
+SX-C-35,SX,绍兴鸭,Duck,Anas platyrhynchos,Commercial,Cecum,Zhejiang,YangtzeValley,Second,RNA-seq,Virus-seq,120,30,IASCAAS_PekinDuck_T2T
+# WSMY-C-31,WSMY,微山麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,117,35,IASCAAS_PekinDuck_T2T
+# WSMY-C-32,WSMY,微山麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,117,35,IASCAAS_PekinDuck_T2T
+# WSMY-C-33,WSMY,微山麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,117,35,IASCAAS_PekinDuck_T2T
+# WSMY-C-34,WSMY,微山麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,117,35,IASCAAS_PekinDuck_T2T
+# WSMY-C-35,WSMY,微山麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Shandong,HuaihaiPlain,Second,RNA-seq,Virus-seq,117,35,IASCAAS_PekinDuck_T2T
+YT-C-31,YT,于田麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Xinjiang,Northwest,Second,RNA-seq,Virus-seq,81.91,37.1,IASCAAS_PekinDuck_T2T
+YT-C-32,YT,于田麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Xinjiang,Northwest,Second,RNA-seq,Virus-seq,81.91,37.1,IASCAAS_PekinDuck_T2T
+YT-C-33,YT,于田麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Xinjiang,Northwest,Second,RNA-seq,Virus-seq,81.91,37.1,IASCAAS_PekinDuck_T2T
+YT-C-34,YT,于田麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Xinjiang,Northwest,Second,RNA-seq,Virus-seq,81.91,37.1,IASCAAS_PekinDuck_T2T
+YT-C-35,YT,于田麻鸭,Duck,Anas platyrhynchos,Domestic,Cecum,Xinjiang,Northwest,Second,RNA-seq,Virus-seq,81.91,37.1,IASCAAS_PekinDuck_T2T

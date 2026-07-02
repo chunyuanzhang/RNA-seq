@@ -33,27 +33,28 @@ rule salmon_quant:
         """
  
 
+# salmon 使用的参考基因组和转录组序列一起创建的索引，其中转录组部分用的ID，
+# 包含rna等字样，因此tx2gene文件需要单独创建
+rule make_tx2tene:
+    input:
+        gff = lambda wildcards: get_genome_gff(wildcards.species) 
+    output:
+        tx2gene = "result/Salmon/{species}_trans2symbol.tsv"
+    params:
+        Species = "{species}"
+    shell:
+        """
+        {R453}
+        Rscript scripts/tx2gene.R --gfffile {input.gff}  --Species {params.Species}
+        """
+
+
 if design == "Species":
-    # salmon 使用的参考基因组和转录组序列一起创建的索引，其中转录组部分用的ID，
-    # 包含rna等字样，因此tx2gene文件需要单独创建
-    rule make_tx2tene:
-        input:
-            gff = lambda wildcards: get_genome_gff(wildcards.species) 
-        output:
-            tx2gene = "result/Salmon/{species}_trans2symbol.tsv"
-        params:
-            Species = "{species}"
-        shell:
-            """
-            {R453}
-            Rscript scripts/tx2gene.R --gfffile {input.gff}  --Species {params.Species}
-            """
-    
     # 直接挑选同源基因，任何参数都不修改
     rule DESeq_between_species:
         input:
             quant =  expand("result/Salmon/{sample}/quant.sf", sample = samples),
-            tx2gene = expand("result/Salmon/{species}_trans2symbol.tsv", species = list(metainfo_dict_Species_to_Genome.keys()) ),
+            tx2gene = expand("result/Salmon/{species}_trans2symbol.tsv", species = specieses),
             Orthologgenes = Orthologgenes
         output:
             all_genes = "result/Salmon/{pairname}.all.tsv",
@@ -63,16 +64,44 @@ if design == "Species":
             design = design,
             lfc = lfc,
             padj = padj,
-            untreated = untreated
+            untreated = untreated,
+            confoundingvariable = confoundingvariable
         shell:
             """
-            ~/tools/DEseq2/bin/Rscript scripts/Salmon2DESeq_between_species.R \
+            ~/tools/DEseq2/bin/Rscript scripts/DESeq_Salmon.R \
                 --infotable {params.infotable} \
                 --design {params.design} \
                 --lfc {params.lfc} \
                 --padj {params.padj} \
                 --untreated {params.untreated} \
+                --confoundingvariable {params.confoundingvariable} \
                 --Orthologgenes {input.Orthologgenes} 
+            """
+
+else:
+    rule DESeq:
+        input:
+            quant =  expand("result/Salmon/{sample}/quant.sf", sample = samples),
+            tx2gene = expand("result/Salmon/{species}_trans2symbol.tsv", species = specieses)
+        output:
+            all_genes = expand("result/Salmon/{pairname}.all.tsv", pairname = pairnames),
+            diffexp_genes = expand("result/Salmon/{pairname}.diffexp.tsv", pairname = pairnames)
+        params:
+            infotable = infotable,
+            design = design,
+            lfc = lfc,
+            padj = padj,
+            untreated = untreated,
+            confoundingvariable = confoundingvariable
+        shell:
+            """
+            ~/tools/DEseq2/bin/Rscript scripts/DESeq_Salmon.R \
+                --infotable {params.infotable} \
+                --design {params.design} \
+                --lfc {params.lfc} \
+                --padj {params.padj} \
+                --untreated {params.untreated} \
+                --confoundingvariable {params.confoundingvariable}
             """
 
 
@@ -104,42 +133,5 @@ if design == "Species":
 #             --outdir {params.outdir} \
 #             2>{log}
 #         """
-
-# 如果在中间比较，则需要根据同源基因进行对其合并
-# if design == "Species":
-#     rule merge_salmon_expression_matrix:
-#         input:
-#             genecount_scaled = expand("result/Salmon/{species}_gene_counts_scaled.tsv", species = list(metainfo_dict_Species_to_Genome.keys()) ),
-#             Orthologgenes = Orthologgenes
-#         output:
-#             merged_count_martix = "result/Salmon/merged_gene_counts_scaled.tsv"
-#         params:
-#             gene_counts_str=lambda w, input: ",".join(input.genecount_scaled),
-#             infotable = infotable,
-#         shell:
-#             """
-#             ~/tools/DEseq2/bin/Rscript scripts/merge_Orthologene_Count_scaled.R \
-#                 --infotable {params.infotable} \
-#                 --Orthologgenes {input.Orthologgenes} \
-#                 --gene_counts {params.gene_counts_str} \
-#                 --outfile {output.merged_count_martix}
-#             """
-
-    # rule DESeq_between_species:
-    #     input:
-    #         merged_count_martix = "result/Salmon/merged_gene_counts_scaled.tsv",
-    #         Orthologgenes = Orthologgenes 
-    #     output:
-    #         diffgenes = expand("result/DESeq/{pairname}.all.csv", pairname = pairnames)
-    #     params:
-    #         infotable = infotable,
-    #         design = design,
-    #         untreated = untreated,
-    #     shell:
-    #         """
-    #         ~/tools/DEseq2/bin/Rscript 
-    #         """
-
-
 
 
