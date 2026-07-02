@@ -10,19 +10,17 @@ def outfiles():
         ### 原始数据质量控制
         include: "rules/1.QC.smk"
         files.append(expand("result/CleanData/{sample}.clean.{num}.fq.gz", sample = samples,num = [1,2]))
-    # if "rsem" in step or "all" in step:
-    # ### rsem 一步完成比对和统计，注意比对同样适用STAR工具，两步法里面STAR的参数参考rsem的参数
-    #     include: "rules/rsem.smk"
-    #     files.append(expand("result/RSEM/{sample}.genes.results", sample = samples))
-    #     files.append(expand("result/RSEM/{sample}.isoforms.results", sample = samples))
+    if "rsem" in step or "all" in step:
+    ### rsem 一步完成比对和统计，注意比对同样适用STAR工具，两步法里面STAR的参数参考rsem的参数
+        include: "rules/2.rsem.smk"
+        files.append(expand("result/RSEM/{sample}.isoforms.results", sample = samples))
+        files.append(expand("result/RSEM/{species}_trans2symbol.tsv",  species = specieses))
+        files.append(expand("result/RSEM/{pairname}.diffexp.tsv", pairname = pairnames))
     if "salmon" in step or "all" in step:
-        include: "rules/salmon.smk"
+        include: "rules/2.salmon.smk"
         files.append(expand("result/Salmon/{sample}/quant.sf", sample = samples)) 
-        #files.append(expand("result/Salmon/{species}_gene_counts_scaled.tsv", species = list(metainfo_dict_Species_to_Genome.keys())))
-        #files.append(expand("result/Salmon/merged_gene_counts_scaled.tsv"))
-        if design == "Species":
-            files.append(expand("result/Salmon/{species}_trans2symbol.tsv",  species = list(metainfo_dict_Species_to_Genome.keys())))
-            files.append(expand("result/Salmon/{pairname}.diffexp.tsv", pairname = pairnames))
+        files.append(expand("result/Salmon/{species}_trans2symbol.tsv",  species = specieses))
+        files.append(expand("result/Salmon/{pairname}.diffexp.tsv", pairname = pairnames))
 
         # if "deseq" in step or "all" in step:
         #     include: "rules/4.DEseq.smk"
@@ -48,7 +46,7 @@ def outfiles():
         include: "rules/5.GOandKEGG.smk"
         files.append(gokegg_outputs)
         # files.append("result/WGCNA/WGCNAfile.rds")
-    #print(files)
+
     return files
 
 
