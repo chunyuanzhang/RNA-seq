@@ -25,7 +25,8 @@ option_list <- list(
   make_option("--confoundingvariable", type="character", default=NULL, help="混淆变量，多个变量用逗号分隔"),
   make_option("--Orthologgenes", type="character", default=NULL, help="1:1同源基因列表"),
   make_option("--indir", type = "character", default = "result/Salmon/", help = "Samlon输出的主文件夹"),
-  make_option("--outdir", type = "character", default = "result/Salmon/", help = "差异分析结果存储路径")
+  make_option("--outdir", type = "character", default = "result/Salmon/", help = "差异分析结果存储路径"),
+  make_option("--MappingTool", type = "character", default = "result/Salmon/", help = "比对工具，只影响导入数据的方式")
 )
 
 args <- parse_args(OptionParser(option_list=option_list))
@@ -41,7 +42,7 @@ indir <- args$indir
 indir <- check_path(indir)
 outdir <- args$outdir
 outdir <- check_path(outdir)
-
+MappingTool <- args$MappingTool
 
 #-------------------------------------------------------------------------------
 # 读取元信息
@@ -61,7 +62,6 @@ treated <- setdiff(sampletable[[design]] %>% as.vector() %>% unique(), untreated
 # 如果存在多组比较，则直接根据treated循环比较
 sampletable[design] <- factor(x = sampletable[[design]], levels = c(untreated, treated))
 
-#print(head(sampletable))
 
 
 #-------------------------------------------------------------------------------
@@ -88,11 +88,17 @@ if(design == "Species"){
   for (s in species) {
     tx2gene <- read.table(file = paste0(indir, s, "_trans2symbol.tsv"), header = T)
     
-    files <- file.path(indir, rownames(sampletable_list[[s]]), "quant.sf")
+    if(MappingTool == "salmon"){
+      files <- paste0(indir, rownames(sampletable_list[[s]]), "/quant.sf")
+    } else if(MappingTool == "rsem"){
+      files <- paste0(indir, rownames(sampletable_list[[s]]), ".isoforms.results")
+    }
+
     names(files) <- rownames(sampletable_list[[s]])
-    txi.salmon <- tximport(files, type = "salmon", tx2gene = tx2gene)
-    txi_list[[s]] <- txi.salmon
-    remove(tx2gene, txi.salmon, files)
+    
+    txi <- tximport(files, type = MappingTool, tx2gene = tx2gene)
+    txi_list[[s]] <- txi
+    remove(tx2gene, txi, files)
   }
   
   # 2. 按同源基因抽 counts + length,合并成一个 txi
@@ -123,9 +129,15 @@ if(design == "Species"){
   print("种内差异分析，读取表达数据")
   s <- sampletable$Species %>% unique() %>% as.character()
   tx2gene <- read.table(file = paste0(indir, s, "_trans2symbol.tsv"), header = T)
-  files <- file.path(indir, rownames(sampletable), "quant.sf")
+
+  if(MappingTool == "salmon"){
+    files <- paste0(indir, rownames(sampletable), "/quant.sf")
+  } else if(MappingTool == "rsem"){
+    files <- paste0(indir, rownames(sampletable), ".isoforms.results")
+  }
+
   names(files) <- rownames(sampletable)
-  txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
+  txi <- tximport(files, type = MappingTool, tx2gene = tx2gene)
   remove(tx2gene,  files)
   sampletable <- sampletable[colnames(txi$counts), ] 
 

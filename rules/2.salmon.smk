@@ -35,23 +35,29 @@ rule salmon_quant:
 
 # salmon 使用的参考基因组和转录组序列一起创建的索引，其中转录组部分用的ID，
 # 包含rna等字样，因此tx2gene文件需要单独创建
-rule make_tx2tene:
+rule make_tx2tene_Salmon:
     input:
         gff = lambda wildcards: get_genome_gff(wildcards.species) 
     output:
         tx2gene = "result/Salmon/{species}_trans2symbol.tsv"
     params:
-        Species = "{species}"
+        Species = "{species}",
+        MappingTool = "salmon",
+        outdir = "result/Salmon/"
     shell:
         """
         {R453}
-        Rscript scripts/tx2gene.R --gfffile {input.gff}  --Species {params.Species}
+        Rscript scripts/tx2gene.R \
+            --gfffile {input.gff}  \
+            --Species {params.Species} \
+            --MappingTool {params.MappingTool} \
+            --outdir {params.outdir}
         """
 
 
 if design == "Species":
     # 直接挑选同源基因，任何参数都不修改
-    rule DESeq_between_species:
+    rule DESeq_Salmon_between_species:
         input:
             quant =  expand("result/Salmon/{sample}/quant.sf", sample = samples),
             tx2gene = expand("result/Salmon/{species}_trans2symbol.tsv", species = specieses),
@@ -65,21 +71,27 @@ if design == "Species":
             lfc = lfc,
             padj = padj,
             untreated = untreated,
-            confoundingvariable = confoundingvariable
+            confoundingvariable = confoundingvariable,
+            MappingTool = "salmon",
+            indir = "result/Salmon/",
+            outdir = "result/Salmon/"
         shell:
             """
-            ~/tools/DEseq2/bin/Rscript scripts/DESeq_Salmon.R \
+            ~/tools/DEseq2/bin/Rscript scripts/DESeq.R \
                 --infotable {params.infotable} \
                 --design {params.design} \
                 --lfc {params.lfc} \
                 --padj {params.padj} \
                 --untreated {params.untreated} \
                 --confoundingvariable {params.confoundingvariable} \
-                --Orthologgenes {input.Orthologgenes} 
+                --Orthologgenes {input.Orthologgenes} \
+                --MappingTool {params.MappingTool} \
+                --indir {params.indir} \
+                --outdir {params.outdir}
             """
 
 else:
-    rule DESeq:
+    rule DESeq_Salmon:
         input:
             quant =  expand("result/Salmon/{sample}/quant.sf", sample = samples),
             tx2gene = expand("result/Salmon/{species}_trans2symbol.tsv", species = specieses)
@@ -92,7 +104,8 @@ else:
             lfc = lfc,
             padj = padj,
             untreated = untreated,
-            confoundingvariable = confoundingvariable
+            confoundingvariable = confoundingvariable,
+            MappingTool = "rsem"
         shell:
             """
             ~/tools/DEseq2/bin/Rscript scripts/DESeq_Salmon.R \
@@ -101,7 +114,8 @@ else:
                 --lfc {params.lfc} \
                 --padj {params.padj} \
                 --untreated {params.untreated} \
-                --confoundingvariable {params.confoundingvariable}
+                --confoundingvariable {params.confoundingvariable} \
+                --MappingTool {params.MappingTool}
             """
 
 

@@ -13,8 +13,9 @@ def outfiles():
     if "rsem" in step or "all" in step:
     ### rsem 一步完成比对和统计，注意比对同样适用STAR工具，两步法里面STAR的参数参考rsem的参数
         include: "rules/2.rsem.smk"
-        files.append(expand("result/RSEM/{sample}.genes.results", sample = samples))
         files.append(expand("result/RSEM/{sample}.isoforms.results", sample = samples))
+        files.append(expand("result/RSEM/{species}_trans2symbol.tsv",  species = specieses))
+        files.append(expand("result/RSEM/{pairname}.diffexp.tsv", pairname = pairnames))
     if "salmon" in step or "all" in step:
         include: "rules/2.salmon.smk"
         files.append(expand("result/Salmon/{sample}/quant.sf", sample = samples)) 
